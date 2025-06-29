@@ -21,9 +21,7 @@ namespace GlyphsEntranceRando
         public byte id = 0x00;
         public bool canMap = true;
         public bool bossRoom = false;
-        public List<List<Requirements>> bossReq = new List<List<Requirements>>();
         public bool hasWarp = false;
-        public List<List<Requirements>> warpReq = new List<List<Requirements>>();
         public List<Connection> connections = new List<Connection>();
         public List<Entrance> entrances = new List<Entrance>();
         public bool isStartRoom = false;
@@ -81,8 +79,9 @@ namespace GlyphsEntranceRando
 
     public enum Objective : byte
     {
-        //Collectables
         None = 0x00,
+
+        //Collectables and other counters
         SilverShard = 0x01,
         GoldShard = 0x02,
         SmileToken = 0x03,
@@ -91,54 +90,55 @@ namespace GlyphsEntranceRando
         VoidGateShard = 0x06,
         Sigil = 0x07,
         Glyphstone = 0x08,
+        SerpentLock = 0x09,
+        SaveButton = 0x0A,
+        WallJump = 0x0B,
 
         //Abilities
-        Sword = 0x09,
-        DashOrb = 0x0A,
-        Map = 0x0B,
-        Grapple = 0x0C,
-        DashAttackOrb = 0x0D,
-        Parry = 0x0E,
+        Sword = 0x0C,
+        DashOrb = 0x0D,
+        Map = 0x0E,
+        Grapple = 0x0F,
+        DashAttackOrb = 0x10,
+        Parry = 0x11,
 
         //Hats
-        PinkBow = 0x0F,
-        DummyHat = 0x10,
-        TopHat = 0x11,
-        TrafficCone = 0x12,
-        JohnHat = 0x13,
-        Fez = 0x14,
-        Hat7 = 0x15,
-        BombHat = 0x16,
-        Hat9 = 0x17,
-        Hat10 = 0x18,
+        PinkBow = 0x12,
+        DummyHat = 0x13,
+        TopHat = 0x14,
+        TrafficCone = 0x15,
+        JohnHat = 0x16,
+        Fez = 0x17,
+        Hat7 = 0x18,
+        BombHat = 0x19,
+        Hat9 = 0x1A,
+        Hat10 = 0x1B,
 
         //Story Points
-        ConstructDefeat = 0x19,
-        SerpentDefeat = 0x1A,
-        FalseEnding = 0x1B,
-        WizardTrueDefeat = 0x1C,
-        NullDefeat = 0x1D,
-        SpearmanDefeat = 0x1E,
-        GoodEnding = 0x1F,
-        Clarity = 0x20,
-        LastFracture = 0x21,
-        Act1 = 0x22,
-        Act2 = 0x23,
-        TrueEnding = 0x24,
-        SmilemaskEnding = 0x25,
-        OmnipotenceEnding = 0x26,
+        ConstructDefeat = 0x1C,
+        SerpentDefeat = 0x1D,
+        FalseEnding = 0x1E,
+        WizardTrueDefeat = 0x1F,
+        NullDefeat = 0x20,
+        SpearmanDefeat = 0x21,
+        GoodEnding = 0x22,
+        Clarity = 0x23,
+        LastFracture = 0x24,
+        Act1 = 0x25,
+        Act2 = 0x26,
+        TrueEnding = 0x27,
+        SmilemaskEnding = 0x28,
+        OmnipotenceEnding = 0x29,
 
         //Shop Items
-        SwordRune = 0x27,
-        Shroud = 0x28,
-        FastMagic = 0x29,
-        SwiftParry = 0x2A,
+        SwordRune = 0x2A,
+        Shroud = 0x2B,
+        FastMagic = 0x2C,
+        SwiftParry = 0x2D,
 
         //Misc
-        SaveButton = 0x2B,
-        SerpentLock = 0x2C,
-        FlowerPuzzleSolution = 0x2D,
-        VerticalMomentum = 0x2E,
+        FlowerPuzzleSolution = 0x2E,
+        VerticalMomentum = 0x2F,
     }
 
     public enum Requirements : byte
@@ -152,17 +152,17 @@ namespace GlyphsEntranceRando
         Parry = 0x06,
         ConstructDefeat = 0x07,
         SerpentDefeat = 0x08,
-        WizardDefeat = 0x09,
+        FalseEnding = 0x09,
         WizardTrueDefeat = 0x0A,
         NullDefeat = 0x0B,
         SpearmanDefeat = 0x0C,
-        WraithDefeat = 0x0D,
-        VesselDefeat = 0x0E,
+        GoodEnding = 0x0D,
+        LastFracture = 0x0E,
         Clarity = 0x0F,
         Shardx15 = 0x10,
-        Goldx1 = 0x11,
-        Goldx2 = 0x12,
-        Goldx3 = 0x13,
+        GoldShardx1 = 0x11,
+        GoldShardx2 = 0x12,
+        GoldShardx3 = 0x13,
         SwordRune = 0x14,
         Shroud = 0x15,
         FastMagic = 0x16,
@@ -172,12 +172,12 @@ namespace GlyphsEntranceRando
         Tokensx6 = 0x1A,
         Tokensx8 = 0x1B,
         Tokensx10 = 0x1C,
-        Glyphstones = 0x1D,
+        Glyphstonesx3 = 0x1D,
         FlowerPuzzleSolved = 0x1E,
         SerpentLocksx4 = 0x1F,
         VoidGateShardx7 = 0x20,
         VoidPlatformBroken = 0x21,
-        WallJump = 0x22,
+        WallJumpx1 = 0x22,
         WallJumpx2 = 0x23,
         MapPuzzleSolved = 0x24,
         RuneCubesx3 = 0x25,

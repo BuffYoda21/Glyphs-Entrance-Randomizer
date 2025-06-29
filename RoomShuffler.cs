@@ -11,24 +11,169 @@ namespace GlyphsEntranceRando
         public static bool Shuffle()
         {
             int deadEnds = 0;
+            bool stuck = false;
             Stack<Entrance> thePath = new Stack<Entrance>();
             thePath.Push(allEntrances[0x0000]);
             CacheRooms();
             SortEntrances();
             while (thePath.Peek() != allEntrances[0x0012] && deadEnds < 100) //keeps going until it leaves region1 or fails
             {
-                
+                currentRoute = new List<Entrance>();
+                while (thePath.Peek() != allEntrances[0x0012] && !stuck)
+                {
+                    currentRoute.Add(thePath.Peek());
+                    if(thePath.Peek().couple == null)
+                    {
+                        PairEntrance(thePath.Peek());
+                        if(thePath.Peek().couple == null)
+                        {
+                            MelonLogger.Error($"Failed to find a pair for entrance {thePath.Peek().id}");
+                            return false;
+                        }
+                    }
+                    currentRoute.Add(thePath.Peek().couple);
+                    thePath.Push(currentRoute[currentRoute.Count-1]);
+                    foreach(Connection c in allRooms[thePath.Peek().roomId].connections)
+                    {
+                        if(c.enter.id != thePath.Peek().id) continue;   //we didnt enter through this entrance so ignore
+                        if(c.obj != Objective.None)   //is this connection connecting to an objective?
+                        {
+                            bool collected = false;
+                            foreach(CollectedObjective co in inventory)
+                            {
+                                collected = c.obj == co.obj && c.enter.roomId == co.rm;
+                                if(collected) break;
+                            }
+                            if(collected) continue;     //this objective is already collected
+                            if(TryCollectObjective(c))
+                            {
+                                for (int i = 0; i < knownObjectives.Count; i++)
+                                {
+                                    UncollectedObjective o = knownObjectives[i];
+                                    if (o.obj == c.obj && o.rm == c.enter.roomId)
+                                    {
+                                        knownObjectives.RemoveAt(i);
+                                        break;
+                                    }
+                                }
+                            } 
+                            else
+                            {
+                                bool newConnectionMade = false;
+                                for (int i = 0; i < knownObjectives.Count; i++)
+                                {
+                                    UncollectedObjective o = knownObjectives[i];
+                                    if (o.obj == c.obj && o.rm == c.enter.roomId && !o.connections.Contains(c))
+                                    {
+                                        o.connections.Add(c);
+                                        newConnectionMade = true;
+                                        break;
+                                    }
+                                }
+                                if(!newConnectionMade)
+                                {
+                                    knownObjectives.Add(new UncollectedObjective
+                                    {
+                                        obj = c.obj,
+                                        rm = c.enter.roomId,
+                                        connections = new List<Connection> {c},
+                                    });
+                                }
+                            }
+                        }
+                        else    //this connection must be connecting to another entrance
+                        {
+
+                        }
+                    }
+                }
+                deadEnds++;
             }
 
-            return true;
+            return false;
         }
+
+        private static bool TryCollectObjective(Connection c)
+        {
+            if(c.obj == Objective.None)
+            {
+                MelonLogger.Error($"{c.exit} is an entrance not an objective.");
+                return false;
+            }
+            if(c.requirements == null)
+            {
+                return true;
+            }
+            bool collected = false;
+            foreach (List<Requirements> list in c.requirements)
+            {
+                collected = true;
+                foreach(Requirements req in list)
+                {
+                    if(/* requirement not met */)
+                    {
+                        collected = false;
+                        break;
+                    }
+                }
+                if(collected)   //Update logic to account for counter objectives
+                {
+                    inventory.Add(new CollectedObjective
+                    {
+                        obj = c.obj,
+                        rm = c.enter.roomId,
+                    });
+                    break;
+                }
+            }
+            return collected;
+        }
+
+        private static Entrance PairEntrance(Entrance e)
+        {
+            Entrance pairing = null;
+            int rand;
+            switch (e.type)
+            {
+                case EntranceType.Left:
+                    if (rightEntrances.Count <= 0) return null;
+                    rand = UnityEngine.Random.Range(0, rightEntrances.Count);
+                    pairing = rightEntrances[rand];
+                    e.couple = pairing;
+                    rightEntrances.RemoveAt(rand);
+                    return pairing;
+                case EntranceType.Right:
+                    if (leftEntrances.Count <= 0) return null;
+                    rand = UnityEngine.Random.Range(0, rightEntrances.Count);
+                    pairing = leftEntrances[rand];
+                    e.couple = pairing;
+                    rightEntrances.RemoveAt(rand);
+                    return pairing;
+                case EntranceType.Top:
+                    if (bottomEntrances.Count <= 0) return null;
+                    rand = UnityEngine.Random.Range(0, rightEntrances.Count);
+                    pairing = bottomEntrances[rand];
+                    e.couple = pairing;
+                    rightEntrances.RemoveAt(rand);
+                    return pairing;
+                case EntranceType.Bottom:
+                    if (topEntrances.Count <= 0) return null;
+                    rand = UnityEngine.Random.Range(0, rightEntrances.Count);
+                    pairing = topEntrances[rand];
+                    e.couple = pairing;
+                    rightEntrances.RemoveAt(rand);
+                    return pairing;
+            }
+            return null;
+        }
+
         /*
             * This method is responsible for defining the rooms and their connections in the game.
             * It initializes a list of rooms, each with its own unique ID, entrances, and connections.
             * The rooms are defined with various logical requirements to traverse from one point of the room to another.
             * Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
         */
-        public static void CacheRooms()
+        private static void CacheRooms()
         {
             allEntrances = new List<Entrance> {
                 new Entrance(0x0000, 0x00, EntranceType.Bottom),
@@ -344,7 +489,7 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x0014], allEntrances[0x0018], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x0018], allEntrances[0x0014], new List<List<Requirements>>
                         {
@@ -365,7 +510,7 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x0015], allEntrances[0x0018], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x0018], allEntrances[0x0015], new List<List<Requirements>>
                         {
@@ -381,7 +526,7 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x0016], allEntrances[0x0018], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x0018], allEntrances[0x0016], new List<List<Requirements>>
                         {
@@ -389,7 +534,7 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x0017], allEntrances[0x0018], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved, Requirements.WallJump }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved, Requirements.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x0018], allEntrances[0x0017], new List<List<Requirements>>
                         {
@@ -454,12 +599,12 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x001B], allEntrances[0x001C], null),
                         new Connection(allEntrances[0x001C], allEntrances[0x001B], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x001B], allEntrances[0x001D], null),
                         new Connection(allEntrances[0x001D], allEntrances[0x001B], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x001C], allEntrances[0x001D], null),
                         new Connection(allEntrances[0x001D], allEntrances[0x001C], new List<List<Requirements>>
@@ -484,18 +629,18 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x001F], allEntrances[0x001F], null),
                         new Connection(allEntrances[0x0020], allEntrances[0x0020], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump },
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
                             new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
                         }),
                         new Connection(allEntrances[0x001E], allEntrances[0x001F], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump },
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
                             new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
                         }),
                         new Connection(allEntrances[0x001F], allEntrances[0x001E], null),
                         new Connection(allEntrances[0x001E], allEntrances[0x0020], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJump },
+                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
                             new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
                         }),
                         new Connection(allEntrances[0x0020], allEntrances[0x001E], null),
@@ -797,7 +942,7 @@ namespace GlyphsEntranceRando
             };
         }
 
-        public static void SortEntrances()
+        private static void SortEntrances()
         {
             foreach (Entrance e in allEntrances)
             {
@@ -817,5 +962,23 @@ namespace GlyphsEntranceRando
         public static List<Entrance> leftEntrances = new List<Entrance>();
         public static List<Entrance> topEntrances = new List<Entrance>();
         public static List<Entrance> bottomEntrances = new List<Entrance>();
+
+        public static List<List<Entrance>> uncheckedEntrances = new List<List<Entrance>>();
+        public static List<UncollectedObjective> knownObjectives = new List<UncollectedObjective>();
+        public static List<CollectedObjective> inventory = new List<CollectedObjective>();
+        public static List<Entrance> currentRoute;
+
+        public class UncollectedObjective
+        {
+            public Objective obj;
+            public byte rm;
+            public List<Connection> connections;
+        }
+
+        public class CollectedObjective
+        {
+            public Objective obj;
+            public byte rm;
+        }
     }
 }
