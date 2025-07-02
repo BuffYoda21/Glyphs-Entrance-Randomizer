@@ -481,11 +481,11 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x0014], allEntrances[0x0017], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0017], allEntrances[0x0014], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0014], allEntrances[0x0018], new List<List<Requirements>>
                         {
@@ -502,11 +502,11 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x0016], allEntrances[0x0015], null),
                         new Connection(allEntrances[0x0015], allEntrances[0x0017], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0017], allEntrances[0x0015], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0015], allEntrances[0x0018], new List<List<Requirements>>
                         {
@@ -518,11 +518,11 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x0016], allEntrances[0x0017], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0017], allEntrances[0x0016], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0016], allEntrances[0x0018], new List<List<Requirements>>
                         {
@@ -534,11 +534,11 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x0017], allEntrances[0x0018], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved, Requirements.WallJumpx1 }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle, Requirements.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x0018], allEntrances[0x0017], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0014], Objective.SaveButton, null),
                         new Connection(allEntrances[0x0015], Objective.SaveButton, new List<List<Requirements>>
@@ -548,7 +548,7 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x0016], Objective.SaveButton, null),
                         new Connection(allEntrances[0x0017], Objective.SaveButton, new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0018], Objective.SaveButton, new List<List<Requirements>>
                         {
@@ -630,18 +630,18 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x0020], allEntrances[0x0020], new List<List<Requirements>>
                         {
                             new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x001E], allEntrances[0x001F], new List<List<Requirements>>
                         {
                             new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x001F], allEntrances[0x001E], null),
                         new Connection(allEntrances[0x001E], allEntrances[0x0020], new List<List<Requirements>>
                         {
                             new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0020], allEntrances[0x001E], null),
                         new Connection(allEntrances[0x001F], allEntrances[0x0020], new List<List<Requirements>>
@@ -654,15 +654,15 @@ namespace GlyphsEntranceRando
                         }),
                         new Connection(allEntrances[0x001E], Objective.VerticalMomentum, new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x001F], Objective.VerticalMomentum, new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0020], Objective.VerticalMomentum, new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
                         }),
                     }
                 },
@@ -773,20 +773,20 @@ namespace GlyphsEntranceRando
                     {
                         new Connection(allEntrances[0x0029], allEntrances[0x0029], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x002A], allEntrances[0x002A], null),
                         new Connection(allEntrances[0x0029], allEntrances[0x002A], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x002A], allEntrances[0x0029], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x002B], allEntrances[0x0029], new List<List<Requirements>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzleSolved }
+                            new List<Requirements> { Requirements.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x002B], allEntrances[0x002A], null),
                     }
