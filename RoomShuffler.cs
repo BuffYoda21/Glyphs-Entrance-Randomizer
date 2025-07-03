@@ -116,13 +116,32 @@ namespace GlyphsEntranceRando
                         break;
                     }
                 }
-                if (collected)   //Update logic to account for counter objectives
+                if (collected)
                 {
-                    inventory.Add(new CollectedObjective
+                    if ((int)c.obj >= 0x01 && (int)c.obj <= 0x12)   //this objective is a counter
                     {
-                        obj = c.obj,
-                        rm = c.enter.roomId,
-                    });
+                        switch (c.obj)
+                        {
+                            case Objective.SilverShard:     counters.silverShard++;     break;
+                            case Objective.GoldShard:       counters.goldShard++;       break;
+                            case Objective.SmileToken:      counters.smileToken++;      break;
+                            case Objective.RuneCube:        counters.runeCube++;        break;
+                            case Objective.VoidGateShard:   counters.voidGateShard++;   break;
+                            case Objective.Sigil:           counters.sigil++;           break;
+                            case Objective.Glyphstone:      counters.glyphstone++;      break;
+                            case Objective.SerpentLock:     counters.serpentLock++;     break;
+                            case Objective.WallJump:        counters.wallJump++;        break;
+                            case Objective.Seeds:           counters.seeds++;           break;
+                        }
+                    }
+                    else    //standard objective
+                    {
+                        inventory.Add(new CollectedObjective
+                        {
+                            obj = c.obj,
+                            rm = c.enter.roomId,
+                        });
+                    }
                     break;
                 }
             }
@@ -985,10 +1004,10 @@ namespace GlyphsEntranceRando
             {
                 switch (e.type)
                 {
-                    case EntranceType.Left: leftEntrances.Add(e); break;
-                    case EntranceType.Right: rightEntrances.Add(e); break;
-                    case EntranceType.Top: topEntrances.Add(e); break;
-                    case EntranceType.Bottom: bottomEntrances.Add(e); break;
+                    case EntranceType.Left:     leftEntrances.Add(e);   break;
+                    case EntranceType.Right:    rightEntrances.Add(e);  break;
+                    case EntranceType.Top:      topEntrances.Add(e);    break;
+                    case EntranceType.Bottom:   bottomEntrances.Add(e); break;
                 }
             }
         }
