@@ -22,30 +22,30 @@ namespace GlyphsEntranceRando
                 while (thePath.Peek() != allEntrances[0x0012] && !stuck)
                 {
                     currentRoute.Add(thePath.Peek());
-                    if(thePath.Peek().couple == null)
+                    if (thePath.Peek().couple == null)
                     {
                         PairEntrance(thePath.Peek());
-                        if(thePath.Peek().couple == null)
+                        if (thePath.Peek().couple == null)
                         {
                             MelonLogger.Error($"Failed to find a pair for entrance {thePath.Peek().id}");
                             return false;
                         }
                     }
                     currentRoute.Add(thePath.Peek().couple);
-                    thePath.Push(currentRoute[currentRoute.Count-1]);
-                    foreach(Connection c in allRooms[thePath.Peek().roomId].connections)
+                    thePath.Push(currentRoute[currentRoute.Count - 1]);
+                    foreach (Connection c in allRooms[thePath.Peek().roomId].connections)
                     {
-                        if(c.enter.id != thePath.Peek().id) continue;   //we didnt enter through this entrance so ignore
-                        if(c.obj != Objective.None)   //is this connection connecting to an objective?
+                        if (c.enter.id != thePath.Peek().id) continue;   //we didnt enter through this entrance so ignore
+                        if (c.obj != Objective.None)   //is this connection connecting to an objective?
                         {
                             bool collected = false;
-                            foreach(CollectedObjective co in inventory)
+                            foreach (CollectedObjective co in inventory)
                             {
                                 collected = c.obj == co.obj && c.enter.roomId == co.rm;
-                                if(collected) break;
+                                if (collected) break;
                             }
-                            if(collected) continue;     //this objective is already collected
-                            if(TryCollectObjective(c))
+                            if (collected) continue;     //this objective is already collected
+                            if (TryCollectObjective(c))
                             {
                                 for (int i = 0; i < knownObjectives.Count; i++)
                                 {
@@ -56,7 +56,7 @@ namespace GlyphsEntranceRando
                                         break;
                                     }
                                 }
-                            } 
+                            }
                             else
                             {
                                 bool newConnectionMade = false;
@@ -70,13 +70,13 @@ namespace GlyphsEntranceRando
                                         break;
                                     }
                                 }
-                                if(!newConnectionMade)
+                                if (!newConnectionMade)
                                 {
                                     knownObjectives.Add(new UncollectedObjective
                                     {
                                         obj = c.obj,
                                         rm = c.enter.roomId,
-                                        connections = new List<Connection> {c},
+                                        connections = new List<Connection> { c },
                                     });
                                 }
                             }
@@ -95,12 +95,12 @@ namespace GlyphsEntranceRando
 
         private static bool TryCollectObjective(Connection c)
         {
-            if(c.obj == Objective.None)
+            if (c.obj == Objective.None)
             {
                 MelonLogger.Error($"entrance {c.exit.id} is an entrance not an objective.");
                 return false;
             }
-            if(c.requirements == null)
+            if (c.requirements == null)
             {
                 return true;
             }
@@ -108,15 +108,15 @@ namespace GlyphsEntranceRando
             foreach (List<Requirement> list in c.requirements)
             {
                 collected = true;
-                foreach(Requirement req in list)
+                foreach (Requirement req in list)
                 {
-                    if(HasReq(req))
+                    if (HasReq(req))
                     {
                         collected = false;
                         break;
                     }
                 }
-                if(collected)   //Update logic to account for counter objectives
+                if (collected)   //Update logic to account for counter objectives
                 {
                     inventory.Add(new CollectedObjective
                     {
@@ -131,9 +131,29 @@ namespace GlyphsEntranceRando
 
         private static bool HasReq(Requirement req)
         {
-            if ((int)req >= 0x01 && (int)req <= 0x11)   //this requirement is a counter
+            if ((int)req >= 0x01 && (int)req <= 0x12)   //this requirement is a counter
             {
-                
+                switch (req)
+                {
+                    case Requirement.SilverShardx15:    return counters.silverShard >= 15;
+                    case Requirement.GoldShardx1:       return counters.goldShard >= 1;
+                    case Requirement.GoldShardx2:       return counters.goldShard >= 2;
+                    case Requirement.GoldShardx3:       return counters.goldShard >= 3;
+                    case Requirement.SmileTokenx2:      return counters.smileToken >= 2;
+                    case Requirement.SmileTokenx4:      return counters.smileToken >= 4;
+                    case Requirement.SmileTokenx6:      return counters.smileToken >= 6;
+                    case Requirement.SmileTokenx8:      return counters.smileToken >= 8;
+                    case Requirement.SmileTokenx10:     return counters.smileToken >= 10;
+                    case Requirement.RuneCubex3:        return counters.runeCube >= 3;
+                    case Requirement.VoidGateShardx7:   return counters.voidGateShard >= 7;
+                    case Requirement.Sigilx3:           return counters.sigil >= 3;
+                    case Requirement.Glyphstonex3:      return counters.glyphstone >= 3;
+                    case Requirement.SerpentLockx4:     return counters.serpentLock >= 4;
+                    case Requirement.WallJumpx1:        return counters.wallJump >= 1;
+                    case Requirement.WallJumpx2:        return counters.wallJump >= 2;
+                    case Requirement.Seedsx10:          return counters.seeds >= 10;
+                }
+                return false;
             }
             else    //standard requirement
             {
@@ -142,6 +162,7 @@ namespace GlyphsEntranceRando
                     if ((int)req == (int)cobj.obj)
                         return true;
                 }
+                return false;
             }
         }
 
@@ -964,10 +985,10 @@ namespace GlyphsEntranceRando
             {
                 switch (e.type)
                 {
-                    case EntranceType.Left:     leftEntrances.Add(e);   break;
-                    case EntranceType.Right:    rightEntrances.Add(e);  break;
-                    case EntranceType.Top:      topEntrances.Add(e);    break;
-                    case EntranceType.Bottom:   bottomEntrances.Add(e); break;
+                    case EntranceType.Left: leftEntrances.Add(e); break;
+                    case EntranceType.Right: rightEntrances.Add(e); break;
+                    case EntranceType.Top: topEntrances.Add(e); break;
+                    case EntranceType.Bottom: bottomEntrances.Add(e); break;
                 }
             }
         }
@@ -982,6 +1003,7 @@ namespace GlyphsEntranceRando
         public static List<List<Entrance>> uncheckedEntrances = new List<List<Entrance>>();
         public static List<UncollectedObjective> knownObjectives = new List<UncollectedObjective>();
         public static List<CollectedObjective> inventory = new List<CollectedObjective>();
+        public static InventoryCounters counters = new InventoryCounters();
         public static List<Entrance> currentRoute;
 
         public class UncollectedObjective
@@ -995,6 +1017,20 @@ namespace GlyphsEntranceRando
         {
             public Objective obj;
             public byte rm;
+        }
+
+        public class InventoryCounters
+        {
+            public int silverShard = 0;
+            public int goldShard = 0;
+            public int smileToken = 0;
+            public int runeCube = 0;
+            public int voidGateShard = 0;
+            public int sigil = 0;
+            public int glyphstone = 0;
+            public int serpentLock = 0;
+            public int wallJump = 0;
+            public int seeds = 0;
         }
     }
 }
