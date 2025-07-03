@@ -100,12 +100,12 @@ namespace GlyphsEntranceRando
                 MelonLogger.Error($"entrance {c.exit.id} is an entrance not an objective.");
                 return false;
             }
-            if(c.Requirement == null)
+            if(c.requirements == null)
             {
                 return true;
             }
             bool collected = false;
-            foreach (List<Requirement> list in c.Requirement)
+            foreach (List<Requirement> list in c.requirements)
             {
                 collected = true;
                 foreach(Requirement req in list)
@@ -186,7 +186,7 @@ namespace GlyphsEntranceRando
         /*
             * This method is responsible for defining the rooms and their connections in the game.
             * It initializes a list of rooms, each with its own unique ID, entrances, and connections.
-            * The rooms are defined with various logical Requirement to traverse from one point of the room to another.
+            * The rooms are defined with various logical requirements to traverse from one point of the room to another.
             * Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
         */
         private static void CacheRooms()

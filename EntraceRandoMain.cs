@@ -32,7 +32,7 @@ namespace GlyphsEntranceRando
         public Connection(Entrance enter, Entrance exit, List<List<Requirement>> req) {
             this.enter = enter;
             this.exit = exit;
-            this.Requirement = req;
+            this.requirements = req;
             this.obj = Objective.None;
         }
 
@@ -40,7 +40,7 @@ namespace GlyphsEntranceRando
         {
             this.enter = enter;
             this.exit = null;
-            this.Requirement = req;
+            this.requirements = req;
             this.obj = obj;
         }
 
@@ -48,13 +48,13 @@ namespace GlyphsEntranceRando
         {
             this.enter = enter;
             this.exit = enter;
-            this.Requirement = req;
+            this.requirements = req;
             this.obj = Objective.None;
         }
         public Entrance enter = null;
         public Entrance exit = null;
         public Objective obj = Objective.None;
-        public List<List<Requirement>> Requirement = new List<List<Requirement>>();
+        public List<List<Requirement>> requirements = new List<List<Requirement>>();
     }
 
     public class Entrance
