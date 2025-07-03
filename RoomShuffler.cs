@@ -97,20 +97,20 @@ namespace GlyphsEntranceRando
         {
             if(c.obj == Objective.None)
             {
-                MelonLogger.Error($"{c.exit} is an entrance not an objective.");
+                MelonLogger.Error($"entrance {c.exit.id} is an entrance not an objective.");
                 return false;
             }
-            if(c.requirements == null)
+            if(c.Requirement == null)
             {
                 return true;
             }
             bool collected = false;
-            foreach (List<Requirements> list in c.requirements)
+            foreach (List<Requirement> list in c.Requirement)
             {
                 collected = true;
-                foreach(Requirements req in list)
+                foreach(Requirement req in list)
                 {
-                    if(/* requirement not met */)
+                    if(HasReq(req))
                     {
                         collected = false;
                         break;
@@ -129,9 +129,25 @@ namespace GlyphsEntranceRando
             return collected;
         }
 
+        private static bool HasReq(Requirement req)
+        {
+            if ((int)req >= 0x01 && (int)req <= 0x11)   //this requirement is a counter
+            {
+                
+            }
+            else    //standard requirement
+            {
+                foreach (CollectedObjective cobj in inventory)
+                {
+                    if ((int)req == (int)cobj.obj)
+                        return true;
+                }
+            }
+        }
+
         private static Entrance PairEntrance(Entrance e)
         {
-            Entrance pairing = null;
+            Entrance pairing;
             int rand;
             switch (e.type)
             {
@@ -170,7 +186,7 @@ namespace GlyphsEntranceRando
         /*
             * This method is responsible for defining the rooms and their connections in the game.
             * It initializes a list of rooms, each with its own unique ID, entrances, and connections.
-            * The rooms are defined with various logical requirements to traverse from one point of the room to another.
+            * The rooms are defined with various logical Requirement to traverse from one point of the room to another.
             * Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
         */
         private static void CacheRooms()
@@ -309,23 +325,23 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x0006], allEntrances[0x0006], null),
                         new Connection(allEntrances[0x0007], allEntrances[0x0007], null),
                         new Connection(allEntrances[0x0008], allEntrances[0x0008], null),
-                        new Connection(allEntrances[0x0006], allEntrances[0x0007], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0006], allEntrances[0x0007], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x0007], allEntrances[0x0006], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0007], allEntrances[0x0006], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x0006], allEntrances[0x0008], null),
-                        new Connection(allEntrances[0x0008], allEntrances[0x0006], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0008], allEntrances[0x0006], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.VerticalMomentum }
+                            new List<Requirement> { Requirement.VerticalMomentum }
                         }),
                         new Connection(allEntrances[0x0007], allEntrances[0x0008], null),
-                        new Connection(allEntrances[0x0008], allEntrances[0x0007], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0008], allEntrances[0x0007], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.VerticalMomentum }
+                            new List<Requirement> { Requirement.VerticalMomentum }
                         }),
                     }
                 },
@@ -341,9 +357,9 @@ namespace GlyphsEntranceRando
                     {
                         new Connection(allEntrances[0x0009], allEntrances[0x0009], null),
                         new Connection(allEntrances[0x000A], allEntrances[0x000A], null),
-                        new Connection(allEntrances[0x0009], allEntrances[0x000A], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0009], allEntrances[0x000A], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb },
+                            new List<Requirement> { Requirement.DashOrb },
                         }),
                         new Connection(allEntrances[0x000A], allEntrances[0x0009], null),
                     },
@@ -361,27 +377,27 @@ namespace GlyphsEntranceRando
                     {
                         new Connection(allEntrances[0x000B], allEntrances[0x000B], null),
                         new Connection(allEntrances[0x000C], allEntrances[0x000C], null),
-                        new Connection(allEntrances[0x000D], allEntrances[0x000D], new List<List<Requirements>>
+                        new Connection(allEntrances[0x000D], allEntrances[0x000D], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x000B], allEntrances[0x000C], new List<List<Requirements>>
+                        new Connection(allEntrances[0x000B], allEntrances[0x000C], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x000C], allEntrances[0x000B], null),
-                        new Connection(allEntrances[0x000B], allEntrances[0x000D], new List<List<Requirements>>
+                        new Connection(allEntrances[0x000B], allEntrances[0x000D], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.Grapple }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
                         }),
                         new Connection(allEntrances[0x000D], allEntrances[0x000B], null),
-                        new Connection(allEntrances[0x000C], allEntrances[0x000D], new List<List<Requirements>>
+                        new Connection(allEntrances[0x000C], allEntrances[0x000D], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.Grapple }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
                         }),
-                        new Connection(allEntrances[0x000D], allEntrances[0x000C], new List<List<Requirements>>
+                        new Connection(allEntrances[0x000D], allEntrances[0x000C], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                     },
                 },
@@ -400,19 +416,19 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x000F], allEntrances[0x000F], null),
                         new Connection(allEntrances[0x0010], allEntrances[0x0010], null),
                         new Connection(allEntrances[0x000E], allEntrances[0x000F], null),
-                        new Connection(allEntrances[0x000F], allEntrances[0x000E], new List<List<Requirements>>
+                        new Connection(allEntrances[0x000F], allEntrances[0x000E], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x000E], allEntrances[0x0010], null),
-                        new Connection(allEntrances[0x0010], allEntrances[0x000E], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0010], allEntrances[0x000E], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.VerticalMomentum }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.VerticalMomentum }
                         }),
                         new Connection(allEntrances[0x000F], allEntrances[0x0010], null),
-                        new Connection(allEntrances[0x0010], allEntrances[0x000F], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0010], allEntrances[0x000F], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.VerticalMomentum }
+                            new List<Requirement> { Requirement.VerticalMomentum }
                         }),
                     },
                 },
@@ -445,9 +461,9 @@ namespace GlyphsEntranceRando
                     connections = new List<Connection>
                     {
                         new Connection(allEntrances[0x0013], allEntrances[0x0013], null),
-                        new Connection(allEntrances[0x0013], Objective.SilverShard, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0013], Objective.SilverShard, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                     },
                 },
@@ -470,89 +486,89 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x0017], allEntrances[0x0017], null),
                         new Connection(allEntrances[0x0018], allEntrances[0x0018], null),
                         new Connection(allEntrances[0x0014], allEntrances[0x0015], null),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0014], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0015], allEntrances[0x0014], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x0014], allEntrances[0x0016], null),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0014], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0016], allEntrances[0x0014], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x0014], allEntrances[0x0017], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0014], allEntrances[0x0017], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0014], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0017], allEntrances[0x0014], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0014], allEntrances[0x0018], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0014], allEntrances[0x0018], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
                         }),
-                        new Connection(allEntrances[0x0018], allEntrances[0x0014], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0018], allEntrances[0x0014], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0016], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0015], allEntrances[0x0016], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x0016], allEntrances[0x0015], null),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0017], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0015], allEntrances[0x0017], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0015], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0017], allEntrances[0x0015], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0018], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0015], allEntrances[0x0018], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
                         }),
-                        new Connection(allEntrances[0x0018], allEntrances[0x0015], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0018], allEntrances[0x0015], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0017], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0016], allEntrances[0x0017], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0016], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0017], allEntrances[0x0016], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0018], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0016], allEntrances[0x0018], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
                         }),
-                        new Connection(allEntrances[0x0018], allEntrances[0x0016], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0018], allEntrances[0x0016], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0018], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0017], allEntrances[0x0018], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle, Requirements.WallJumpx1 }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle, Requirement.WallJumpx1 }
                         }),
-                        new Connection(allEntrances[0x0018], allEntrances[0x0017], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0018], allEntrances[0x0017], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0014], Objective.SaveButton, null),
-                        new Connection(allEntrances[0x0015], Objective.SaveButton, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0015], Objective.SaveButton, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x0016], Objective.SaveButton, null),
-                        new Connection(allEntrances[0x0017], Objective.SaveButton, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0017], Objective.SaveButton, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0018], Objective.SaveButton, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0018], Objective.SaveButton, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                     },
                     hasWarp = true,
@@ -569,17 +585,17 @@ namespace GlyphsEntranceRando
                     {
                         new Connection(allEntrances[0x0019], allEntrances[0x0019], null),
                         new Connection(allEntrances[0x001A], allEntrances[0x001A], null),
-                        new Connection(allEntrances[0x0019], allEntrances[0x001A], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0019], allEntrances[0x001A], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.Map }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.Map }
                         }),
-                        new Connection(allEntrances[0x0019], Objective.Map, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0019], Objective.Map, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x001A], Objective.Map, new List<List<Requirements>>
+                        new Connection(allEntrances[0x001A], Objective.Map, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.Map }
+                            new List<Requirement> { Requirement.Map }
                         }),
                     },
                 },
@@ -597,20 +613,20 @@ namespace GlyphsEntranceRando
                         new Connection(allEntrances[0x001C], allEntrances[0x001C], null),
                         new Connection(allEntrances[0x001D], allEntrances[0x001D], null),
                         new Connection(allEntrances[0x001B], allEntrances[0x001C], null),
-                        new Connection(allEntrances[0x001C], allEntrances[0x001B], new List<List<Requirements>>
+                        new Connection(allEntrances[0x001C], allEntrances[0x001B], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x001B], allEntrances[0x001D], null),
-                        new Connection(allEntrances[0x001D], allEntrances[0x001B], new List<List<Requirements>>
+                        new Connection(allEntrances[0x001D], allEntrances[0x001B], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
                         }),
                         new Connection(allEntrances[0x001C], allEntrances[0x001D], null),
-                        new Connection(allEntrances[0x001D], allEntrances[0x001C], new List<List<Requirements>>
+                        new Connection(allEntrances[0x001D], allEntrances[0x001C], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb },
-                            new List<Requirements> { Requirements.VerticalMomentum },
+                            new List<Requirement> { Requirement.DashOrb },
+                            new List<Requirement> { Requirement.VerticalMomentum },
                         }),
                     }
                 },
@@ -627,42 +643,42 @@ namespace GlyphsEntranceRando
                     {
                         new Connection(allEntrances[0x001E], allEntrances[0x001E], null),
                         new Connection(allEntrances[0x001F], allEntrances[0x001F], null),
-                        new Connection(allEntrances[0x0020], allEntrances[0x0020], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0020], allEntrances[0x0020], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 },
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x001E], allEntrances[0x001F], new List<List<Requirements>>
+                        new Connection(allEntrances[0x001E], allEntrances[0x001F], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 },
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x001F], allEntrances[0x001E], null),
-                        new Connection(allEntrances[0x001E], allEntrances[0x0020], new List<List<Requirements>>
+                        new Connection(allEntrances[0x001E], allEntrances[0x0020], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.WallJumpx1 },
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 },
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x0020], allEntrances[0x001E], null),
-                        new Connection(allEntrances[0x001F], allEntrances[0x0020], new List<List<Requirements>>
+                        new Connection(allEntrances[0x001F], allEntrances[0x0020], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x0020], allEntrances[0x001F], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0020], allEntrances[0x001F], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x001E], Objective.VerticalMomentum, new List<List<Requirements>>
+                        new Connection(allEntrances[0x001E], Objective.VerticalMomentum, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x001F], Objective.VerticalMomentum, new List<List<Requirements>>
+                        new Connection(allEntrances[0x001F], Objective.VerticalMomentum, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x0020], Objective.VerticalMomentum, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0020], Objective.VerticalMomentum, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
                         }),
                     }
                 },
@@ -687,9 +703,9 @@ namespace GlyphsEntranceRando
                     },
                     connections = new List<Connection>
                     {
-                        new Connection(allEntrances[0x0022], Objective.SilverShard, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0022], Objective.SilverShard, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                     }
                 },
@@ -718,13 +734,13 @@ namespace GlyphsEntranceRando
                     connections = new List<Connection>
                     {
                         new Connection(allEntrances[0x0025], allEntrances[0x0025], null),
-                        new Connection(allEntrances[0x0026], allEntrances[0x0026], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0026], allEntrances[0x0026], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
-                        new Connection(allEntrances[0x0025], allEntrances[0x0026], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0025], allEntrances[0x0026], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x0026], allEntrances[0x0025], null),
                     }
@@ -738,9 +754,9 @@ namespace GlyphsEntranceRando
                     connections = new List<Connection>
                     {
                         new Connection(allEntrances[0x0027], allEntrances[0x0027], null),
-                        new Connection(allEntrances[0x0027], Objective.RuneCube, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0027], Objective.RuneCube, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                     }
                 },
@@ -754,9 +770,9 @@ namespace GlyphsEntranceRando
                     connections = new List<Connection>
                     {
                         new Connection(allEntrances[0x0028], allEntrances[0x0028], null),
-                        new Connection(allEntrances[0x0028], Objective.SmileToken, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0028], Objective.SmileToken, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                     }
                 },
@@ -771,22 +787,22 @@ namespace GlyphsEntranceRando
                     },
                     connections = new List<Connection>
                     {
-                        new Connection(allEntrances[0x0029], allEntrances[0x0029], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0029], allEntrances[0x0029], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x002A], allEntrances[0x002A], null),
-                        new Connection(allEntrances[0x0029], allEntrances[0x002A], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0029], allEntrances[0x002A], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x002A], allEntrances[0x0029], new List<List<Requirements>>
+                        new Connection(allEntrances[0x002A], allEntrances[0x0029], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.FlowerPuzzle }
                         }),
-                        new Connection(allEntrances[0x002B], allEntrances[0x0029], new List<List<Requirements>>
+                        new Connection(allEntrances[0x002B], allEntrances[0x0029], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.FlowerPuzzle }
+                            new List<Requirement> { Requirement.FlowerPuzzle }
                         }),
                         new Connection(allEntrances[0x002B], allEntrances[0x002A], null),
                     }
@@ -821,38 +837,38 @@ namespace GlyphsEntranceRando
                     connections = new List<Connection>
                     {
                         new Connection(allEntrances[0x002E], allEntrances[0x002E], null),
-                        new Connection(allEntrances[0x002F], allEntrances[0x002F], new List<List<Requirements>>
+                        new Connection(allEntrances[0x002F], allEntrances[0x002F], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.VerticalMomentum }
+                            new List<Requirement> { Requirement.VerticalMomentum }
                         }),
                         new Connection(allEntrances[0x0030], allEntrances[0x0030], null),
-                        new Connection(allEntrances[0x002E], allEntrances[0x002F], new List<List<Requirements>>
+                        new Connection(allEntrances[0x002E], allEntrances[0x002F], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.VerticalMomentum }
+                            new List<Requirement> { Requirement.VerticalMomentum }
                         }),
                         new Connection(allEntrances[0x002F], allEntrances[0x002E], null),
                         new Connection(allEntrances[0x002E], allEntrances[0x0030], null),
-                        new Connection(allEntrances[0x0030], allEntrances[0x002E], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0030], allEntrances[0x002E], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.VerticalMomentum },
-                            new List<Requirements> { Requirements.DashOrb },
+                            new List<Requirement> { Requirement.VerticalMomentum },
+                            new List<Requirement> { Requirement.DashOrb },
                         }),
                         new Connection(allEntrances[0x002F], allEntrances[0x0030], null),
-                        new Connection(allEntrances[0x0030], allEntrances[0x002F], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0030], allEntrances[0x002F], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.VerticalMomentum }
+                            new List<Requirement> { Requirement.VerticalMomentum }
                         }),
-                        new Connection(allEntrances[0x002E], Objective.VerticalMomentum, new List<List<Requirements>>
+                        new Connection(allEntrances[0x002E], Objective.VerticalMomentum, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.Grapple }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
                         }),
-                        new Connection(allEntrances[0x002F], Objective.VerticalMomentum, new List<List<Requirements>>
+                        new Connection(allEntrances[0x002F], Objective.VerticalMomentum, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.Grapple }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
                         }),
-                        new Connection(allEntrances[0x0030], Objective.VerticalMomentum, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0030], Objective.VerticalMomentum, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.Grapple }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
                         }),
                     }
                 },
@@ -867,17 +883,17 @@ namespace GlyphsEntranceRando
                     connections = new List<Connection>
                     {
                         new Connection(allEntrances[0x0031], allEntrances[0x0031], null),
-                        new Connection(allEntrances[0x0032], allEntrances[0x0032], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0032], allEntrances[0x0032], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.ConstructDefeat }
                         }),
-                        new Connection(allEntrances[0x0031], allEntrances[0x0032], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0031], allEntrances[0x0032], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.ConstructDefeat }
                         }),
-                        new Connection(allEntrances[0x0032], allEntrances[0x0031], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0032], allEntrances[0x0031], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb, Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.DashOrb, Requirement.ConstructDefeat }
                         }),
                     }
                 },
@@ -891,31 +907,31 @@ namespace GlyphsEntranceRando
                     },
                     connections = new List<Connection>
                     {
-                        new Connection(allEntrances[0x0033], allEntrances[0x0033], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0033], allEntrances[0x0033], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.ConstructDefeat }
                         }),
                         new Connection(allEntrances[0x0034], allEntrances[0x0034], null),
-                        new Connection(allEntrances[0x0033], allEntrances[0x0034], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0033], allEntrances[0x0034], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.ConstructDefeat }
                         }),
-                        new Connection(allEntrances[0x0034], allEntrances[0x0033], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0034], allEntrances[0x0033], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.ConstructDefeat }
                         }),
-                        new Connection(allEntrances[0x0033], Objective.DashOrb, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0033], Objective.DashOrb, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.ConstructDefeat }
                         }),
-                        new Connection(allEntrances[0x0034], Objective.DashOrb, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0034], Objective.DashOrb, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.ConstructDefeat }
+                            new List<Requirement> { Requirement.ConstructDefeat }
                         }),
-                        new Connection(allEntrances[0x0034], Objective.ConstructDefeat, new List<List<Requirements>>
+                        new Connection(allEntrances[0x0034], Objective.ConstructDefeat, new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.Sword },
-                            new List<Requirements> { Requirements.DashOrb, Requirements.DashAttackOrb },
+                            new List<Requirement> { Requirement.Sword },
+                            new List<Requirement> { Requirement.DashOrb, Requirement.DashAttackOrb },
                         }),
                     }
                 },
@@ -930,9 +946,9 @@ namespace GlyphsEntranceRando
                     connections = new List<Connection>
                     {
                         new Connection(allEntrances[0x0035], allEntrances[0x0035], null),
-                        new Connection(allEntrances[0x0036], allEntrances[0x0036], new List<List<Requirements>>
+                        new Connection(allEntrances[0x0036], allEntrances[0x0036], new List<List<Requirement>>
                         {
-                            new List<Requirements> { Requirements.DashOrb }
+                            new List<Requirement> { Requirement.DashOrb }
                         }),
                         new Connection(allEntrances[0x0035], Objective.SaveButton, null),
                         new Connection(allEntrances[0x0036], Objective.SaveButton, null),

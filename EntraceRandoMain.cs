@@ -29,32 +29,32 @@ namespace GlyphsEntranceRando
 
     public class Connection
     {
-        public Connection(Entrance enter, Entrance exit, List<List<Requirements>> req) {
+        public Connection(Entrance enter, Entrance exit, List<List<Requirement>> req) {
             this.enter = enter;
             this.exit = exit;
-            this.requirements = req;
+            this.Requirement = req;
             this.obj = Objective.None;
         }
 
-        public Connection(Entrance enter, Objective obj, List<List<Requirements>> req)
+        public Connection(Entrance enter, Objective obj, List<List<Requirement>> req)
         {
             this.enter = enter;
             this.exit = null;
-            this.requirements = req;
+            this.Requirement = req;
             this.obj = obj;
         }
 
-        public Connection(Entrance enter, List<List<Requirements>> req)
+        public Connection(Entrance enter, List<List<Requirement>> req)
         {
             this.enter = enter;
             this.exit = enter;
-            this.requirements = req;
+            this.Requirement = req;
             this.obj = Objective.None;
         }
         public Entrance enter = null;
         public Entrance exit = null;
         public Objective obj = Objective.None;
-        public List<List<Requirements>> requirements = new List<List<Requirements>>();
+        public List<List<Requirement>> Requirement = new List<List<Requirement>>();
     }
 
     public class Entrance
@@ -84,66 +84,67 @@ namespace GlyphsEntranceRando
         //Collectables and other counters
         SilverShard = 0x01,
         GoldShard = 0x02,
-        SmileToken = 0x03,
-        RuneCube = 0x04,
-        SaveShard = 0x05,
-        VoidGateShard = 0x06,
-        Sigil = 0x07,
-        Glyphstone = 0x08,
-        SerpentLock = 0x09,
-        SaveButton = 0x0A,
-        WallJump = 0x0B,
+        SmileToken = 0x05,
+        RuneCube = 0x0A,
+        VoidGateShard = 0x0B,
+        Sigil = 0x0C,
+        Glyphstone = 0x0D,
+        SerpentLock = 0x0F,
+        WallJump = 0x10,
+        Seeds = 0x12,    //placeholder need to check actual count
 
         //Abilities
-        Sword = 0x0C,
-        DashOrb = 0x0D,
-        Map = 0x0E,
-        Grapple = 0x0F,
-        DashAttackOrb = 0x10,
-        Parry = 0x11,
-
-        //Hats
-        PinkBow = 0x12,
-        DummyHat = 0x13,
-        TopHat = 0x14,
-        TrafficCone = 0x15,
-        JohnHat = 0x16,
-        Fez = 0x17,
-        Hat7 = 0x18,
-        BombHat = 0x19,
-        Hat9 = 0x1A,
-        George = 0x1B,
+        Sword = 0x13,
+        DashOrb = 0x14,
+        Map = 0x15,
+        Grapple = 0x16,
+        DashAttackOrb = 0x17,
+        Parry = 0x18,
 
         //Story Points
-        ConstructDefeat = 0x1C,
-        SerpentDefeat = 0x1D,
-        FalseEnding = 0x1E,
-        WizardTrueDefeat = 0x1F,
-        NullDefeat = 0x20,
-        SpearmanDefeat = 0x21,
-        GoodEnding = 0x22,
-        Clarity = 0x23,
-        LastFracture = 0x24,
-        Act1 = 0x25,
-        Act2 = 0x26,
-        TrueEnding = 0x27,
-        SmilemaskEnding = 0x28,
-        OmnipotenceEnding = 0x29,
+        ConstructDefeat = 0x19,
+        SerpentDefeat = 0x1A,
+        FalseEnding = 0x1B,
+        WizardTrueDefeat = 0x1C,
+        NullDefeat = 0x1D,
+        SpearmanDefeat = 0x1E,
+        GoodEnding = 0x1F,
+        Clarity = 0x20,
+        LastFracture = 0x21,
+        Act1 = 0x22,
+        Act2 = 0x23,
+        TrueEnding = 0x24,
+        SmilemaskEnding = 0x25,
+        OmnipotenceEnding = 0x26,
 
         //Shop Items
-        SwordRune = 0x2A,
-        Shroud = 0x2B,
-        FastMagic = 0x2C,
-        SwiftParry = 0x2D,
+        SwordRune = 0x27,
+        Shroud = 0x28,
+        FastMagic = 0x29,
+        SwiftParry = 0x2A,
+
+        //Hats
+        PinkBow = 0x2B,
+        DummyHat = 0x2C,
+        TopHat = 0x2D,
+        TrafficCone = 0x2E,
+        JohnHat = 0x2F,
+        Fez = 0x30,
+        Hat7 = 0x31,
+        BombHat = 0x32,
+        Hat9 = 0x33,
+        George = 0x34,
 
         //Misc
-        FlowerPuzzle = 0x2E,
-        VerticalMomentum = 0x2F,
-        BreakableVoidPlatform = 0x30,
-        MapPuzzle = 0x31,
+        FlowerPuzzle = 0x35,
+        VerticalMomentum = 0x36,
+        BreakableVoidPlatform = 0x37,
+        MapPuzzle = 0x38,
+        SaveButton = 0x39,
+        SaveShard = 0x3A,
     }
 
-    public enum Requirements : byte
+    public enum Requirement : byte
     {
         None = 0x00,
 
@@ -152,54 +153,69 @@ namespace GlyphsEntranceRando
         GoldShardx1 = 0x02,
         GoldShardx2 = 0x03,
         GoldShardx3 = 0x04,
-        Tokensx2 = 0x05,
-        Tokensx4 = 0x06,
-        Tokensx6 = 0x07,
-        Tokensx8 = 0x08,
-        Tokensx10 = 0x09,
+        SmileTokenx2 = 0x05,
+        SmileTokenx4 = 0x06,
+        SmileTokenx6 = 0x07,
+        SmileTokenx8 = 0x08,
+        SmileTokenx10 = 0x09,
         RuneCubex3 = 0x0A,
         VoidGateShardx7 = 0x0B,
         Sigilx3 = 0x0C,
-        Glyphstonesx3 = 0x0D,
-        SerpentLocksx4 = 0x0F,
+        Glyphstonex3 = 0x0D,
+        SerpentLockx4 = 0x0F,
         WallJumpx1 = 0x10,
         WallJumpx2 = 0x11,
+        Seedsx10 = 0x12,    //placeholder need to check actual count
 
         //Abilities
-        Sword = 0x12,
-        DashOrb = 0x13,
-        Map = 0x14,
-        Grapple = 0x15,
-        DashAttackOrb = 0x16,
-        Parry = 0x17,
+        Sword = 0x13,
+        DashOrb = 0x14,
+        Map = 0x15,
+        Grapple = 0x16,
+        DashAttackOrb = 0x17,
+        Parry = 0x18,
 
         //Story Points
-        ConstructDefeat = 0x18,
-        SerpentDefeat = 0x19,
-        FalseEnding = 0x1A,
-        WizardTrueDefeat = 0x1B,
-        NullDefeat = 0x1C,
-        SpearmanDefeat = 0x1D,
-        GoodEnding = 0x1E,
-        Clarity = 0x1F,
-        LastFracture = 0x20,
-        Act1 = 0x21,
-        Act2 = 0x22,
-        TrueEnding = 0x23,
-        SmilemaskEnding = 0x24,
-        OmnipotenceEnding = 0x25,
+        ConstructDefeat = 0x19,
+        SerpentDefeat = 0x1A,
+        FalseEnding = 0x1B,
+        WizardTrueDefeat = 0x1C,
+        NullDefeat = 0x1D,
+        SpearmanDefeat = 0x1E,
+        GoodEnding = 0x1F,
+        Clarity = 0x20,
+        LastFracture = 0x21,
+        Act1 = 0x22,
+        Act2 = 0x23,
+        TrueEnding = 0x24,
+        SmilemaskEnding = 0x25,
+        OmnipotenceEnding = 0x26,
 
         //Shop Items
-        SwordRune = 0x26,
-        Shroud = 0x27,
-        FastMagic = 0x28,
-        SwiftParry = 0x29,
+        SwordRune = 0x27,
+        Shroud = 0x28,
+        FastMagic = 0x29,
+        SwiftParry = 0x2A,
+
+        //Hats
+        PinkBow = 0x2B,
+        DummyHat = 0x2C,
+        TopHat = 0x2D,
+        TrafficCone = 0x2E,
+        JohnHat = 0x2F,
+        Fez = 0x30,
+        Hat7 = 0x31,
+        BombHat = 0x32,
+        Hat9 = 0x33,
+        George = 0x34,
 
         //Misc
-        FlowerPuzzle = 0x2A,
-        VerticalMomentum = 0x2B,
-        BreakableVoidPlatform = 0x2C,
-        MapPuzzle = 0x2D,
+        FlowerPuzzle = 0x35,
+        VerticalMomentum = 0x36,
+        BreakableVoidPlatform = 0x37,
+        MapPuzzle = 0x38,
+        SaveButton = 0x39,
+        SaveShard = 0x3A,
     }
 
     public enum EntranceType : byte
