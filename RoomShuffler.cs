@@ -1,8 +1,5 @@
-using UnityEngine;
 using MelonLoader;
 using System.Collections.Generic;
-using GlyphsEntranceRando;
-using System.Data;
 
 namespace GlyphsEntranceRando
 {
@@ -11,20 +8,26 @@ namespace GlyphsEntranceRando
         public static bool Shuffle()
         {
             int deadEnds = 0;
+            int alternateRoutes = 0;
             bool stuck = false;
+            bool roomChange;
+            bool backTrack;
             Stack<Entrance> thePath = new Stack<Entrance>();
-            thePath.Push(allEntrances[0x0000]);
             CacheRooms();
             SortEntrances();
             while (thePath.Peek() != allEntrances[0x0012] && deadEnds < 100) //keeps going until it leaves region1 or fails
             {
                 currentRoute = new List<Entrance>();
+                thePath.Push(allEntrances[0x0000]);
                 while (thePath.Peek() != allEntrances[0x0012] && !stuck)
                 {
+                    backTrack = true;
+                    int routesToCheck = alternateRoutes;
                     currentRoute.Add(thePath.Peek());
                     if (thePath.Peek().couple == null)
                     {
                         PairEntrance(thePath.Peek());
+                        backTrack = false;  //we discovered a new entrance so backTrack = false
                         if (thePath.Peek().couple == null)
                         {
                             MelonLogger.Error($"Failed to find a pair for entrance {thePath.Peek().id}");
@@ -33,6 +36,7 @@ namespace GlyphsEntranceRando
                     }
                     currentRoute.Add(thePath.Peek().couple);
                     thePath.Push(currentRoute[currentRoute.Count - 1]);
+                    roomChange = false;
                     foreach (Connection c in allRooms[thePath.Peek().roomId].connections)
                     {
                         if (c.enter.id != thePath.Peek().id) continue;   //we didnt enter through this entrance so ignore
@@ -84,12 +88,47 @@ namespace GlyphsEntranceRando
                         else    //this connection must be connecting to another entrance
                         {
 
+                            if (c.exit.couple != null && !backTrack) //checks to see if we have tried this entrance on previous itterations 
+                                continue;
+                            if (backTrack && routesToCheck > 0) //checks to see if we should ignore the fact we are backtracking through a previous route and try other entrances to prevent infinite loops over the same route
+                            {
+                                routesToCheck--;
+                                continue;
+                            }
+                            foreach (List<Requirement> list in c.requirements)
+                            {
+                                roomChange = true;
+                                foreach (Requirement req in list)
+                                {
+                                    if (!HasReq(req))
+                                    {
+                                        roomChange = false;
+                                        break;
+                                    }
+                                }
+                                if (roomChange)
+                                {
+                                    break;
+                                }
+                            }
+                            if (roomChange)
+                            {
+                                currentRoute.Add(c.exit);
+                                thePath.Push(currentRoute[currentRoute.Count - 1]);
+                                break;
+                            }
                         }
                     }
+                    stuck = !roomChange;
+                    if (!roomChange && !backTrack)
+                        alternateRoutes++;
                 }
                 deadEnds++;
+                //log current route somehow
             }
-
+            //output ThePath which now contains the solution to the randomizer if randomization was successful
+            if (thePath.Peek() == allEntrances[0x0012])
+                return true;
             return false;
         }
 
@@ -110,7 +149,7 @@ namespace GlyphsEntranceRando
                 collected = true;
                 foreach (Requirement req in list)
                 {
-                    if (HasReq(req))
+                    if (!HasReq(req))
                     {
                         collected = false;
                         break;
