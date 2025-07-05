@@ -123,12 +123,15 @@ namespace GlyphsEntranceRando
                     if (!roomChange && !backTrack)
                         alternateRoutes++;
                 }
-                deadEnds++;
-                //log current route somehow
+                if(stuck)
+                    deadEnds++;
             }
-            //output ThePath which now contains the solution to the randomizer if randomization was successful
             if (thePath.Peek() == allEntrances[0x0012])
+            {
+                PairRemainingEntrances();
+                //output results
                 return true;
+            }
             return false;
         }
 
@@ -292,6 +295,23 @@ namespace GlyphsEntranceRando
                     return pairing;
             }
             return null;
+        }
+
+        public static bool PairRemainingEntrances()
+        {
+            while (rightEntrances.Count > 0)
+            {
+                if (PairEntrance(rightEntrances[0]) == null)
+                    return false;
+            }
+            while (topEntrances.Count > 0)
+            {
+                if (PairEntrance(topEntrances[0]) == null)
+                    return false;
+            }
+            if (leftEntrances.Count > 0 || bottomEntrances.Count > 0)
+                return false;
+            return true;
         }
 
         /*
