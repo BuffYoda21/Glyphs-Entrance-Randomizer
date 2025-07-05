@@ -236,27 +236,59 @@ namespace GlyphsEntranceRando
                     pairing = rightEntrances[rand];
                     e.couple = pairing;
                     rightEntrances.RemoveAt(rand);
+                    for (int i = 0; i < leftEntrances.Count; i++)
+                    {
+                        if (e == leftEntrances[i])
+                        {
+                            leftEntrances.RemoveAt(i);
+                            break;
+                        }
+                    }
                     return pairing;
                 case EntranceType.Right:
                     if (leftEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, rightEntrances.Count);
                     pairing = leftEntrances[rand];
                     e.couple = pairing;
-                    rightEntrances.RemoveAt(rand);
+                    leftEntrances.RemoveAt(rand);
+                    for (int i = 0; i < rightEntrances.Count; i++)
+                    {
+                        if (e == rightEntrances[i])
+                        {
+                            rightEntrances.RemoveAt(i);
+                            break;
+                        }
+                    }
                     return pairing;
                 case EntranceType.Top:
                     if (bottomEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, rightEntrances.Count);
                     pairing = bottomEntrances[rand];
                     e.couple = pairing;
-                    rightEntrances.RemoveAt(rand);
+                    bottomEntrances.RemoveAt(rand);
+                    for (int i = 0; i < topEntrances.Count; i++)
+                    {
+                        if (e == topEntrances[i])
+                        {
+                            topEntrances.RemoveAt(i);
+                            break;
+                        }
+                    }
                     return pairing;
                 case EntranceType.Bottom:
                     if (topEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, rightEntrances.Count);
                     pairing = topEntrances[rand];
                     e.couple = pairing;
-                    rightEntrances.RemoveAt(rand);
+                    topEntrances.RemoveAt(rand);
+                    for (int i = 0; i < bottomEntrances.Count; i++)
+                    {
+                        if (e == bottomEntrances[i])
+                        {
+                            bottomEntrances.RemoveAt(i);
+                            break;
+                        }
+                    }
                     return pairing;
             }
             return null;
