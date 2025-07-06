@@ -1,4 +1,3 @@
-using UnityEngine;
 using MelonLoader;
 using System.Collections.Generic;
 
@@ -12,7 +11,19 @@ namespace GlyphsEntranceRando
         [System.Obsolete]
         public override void OnApplicationStart()
         {
-
+            bool randomizationSuccess = false;
+            for (int i = 0; i < 100; i++)
+            {
+                if (RoomShuffler.Shuffle())
+                {
+                    randomizationSuccess = true;
+                    break;
+                }
+            }
+            if (randomizationSuccess)
+                MelonLogger.Msg("Randomization Successful!");
+            else
+                MelonLogger.Error("Max retries reached. Quitting...");
         }
     }
 
