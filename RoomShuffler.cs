@@ -10,6 +10,7 @@ namespace GlyphsEntranceRando
     {
         public static bool Shuffle()
         {
+            ResetState();
             int deadEnds = 0;
             int alternateRoutes = 0;
             bool stuck = false;
@@ -18,8 +19,14 @@ namespace GlyphsEntranceRando
             Stack<Entrance> thePath = new Stack<Entrance>();
             CacheRooms();
             SortEntrances();
-            while ((thePath.Count == 0 || thePath.Peek() != allEntrances[0x0011]) && deadEnds < 10000) //keeps going until it leaves region1 or fails
+            bool endVisited = false;
+            bool goal = false;
+            while ((thePath.Count == 0 || !goal) && deadEnds < 10000) //keeps going until it leaves region1 or fails
             {
+                if (thePath.Count > 0 && thePath.Peek() == allEntrances[0x0011])
+                    endVisited = true;
+                if (endVisited && HasReq(Requirement.ConstructDefeat))
+                    goal = true;
                 currentRoute = new List<Entrance>();
                 thePath.Push(allEntrances[0x0001]);
                 while (thePath.Peek() != allEntrances[0x0011] && !stuck)
@@ -133,7 +140,7 @@ namespace GlyphsEntranceRando
                     if (!roomChange && !backTrack)
                         alternateRoutes++;
                 }
-                if(stuck)
+                if (stuck)
                     deadEnds++;
             }
             if (thePath.Peek() == allEntrances[0x0011])
@@ -168,6 +175,7 @@ namespace GlyphsEntranceRando
             if (deadEnds >= 10000)
             {
                 MelonLogger.Error("Exceeded max failed randomization attempts. Outputting partial results.");
+                MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
                 List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
                 foreach (Entrance e in allEntrances)
                 {
@@ -182,6 +190,20 @@ namespace GlyphsEntranceRando
             else
                 MelonLogger.Error("An unknown error occured in randomization.");
             return false;
+        }
+        
+        private static void ResetState()
+        {
+            allEntrances.Clear();
+            allRooms.Clear();
+            leftEntrances.Clear();
+            rightEntrances.Clear();
+            topEntrances.Clear();
+            bottomEntrances.Clear();
+            uncheckedEntrances.Clear();
+            knownObjectives.Clear();
+            inventory.Clear();
+            counters = new InventoryCounters();
         }
 
         private static bool TryCollectObjective(Connection c)
@@ -213,16 +235,16 @@ namespace GlyphsEntranceRando
                     {
                         switch (c.obj)
                         {
-                            case Objective.SilverShard:     counters.silverShard++;     break;
-                            case Objective.GoldShard:       counters.goldShard++;       break;
-                            case Objective.SmileToken:      counters.smileToken++;      break;
-                            case Objective.RuneCube:        counters.runeCube++;        break;
-                            case Objective.VoidGateShard:   counters.voidGateShard++;   break;
-                            case Objective.Sigil:           counters.sigil++;           break;
-                            case Objective.Glyphstone:      counters.glyphstone++;      break;
-                            case Objective.SerpentLock:     counters.serpentLock++;     break;
-                            case Objective.WallJump:        counters.wallJump++;        break;
-                            case Objective.Seeds:           counters.seeds++;           break;
+                            case Objective.SilverShard: counters.silverShard++; break;
+                            case Objective.GoldShard: counters.goldShard++; break;
+                            case Objective.SmileToken: counters.smileToken++; break;
+                            case Objective.RuneCube: counters.runeCube++; break;
+                            case Objective.VoidGateShard: counters.voidGateShard++; break;
+                            case Objective.Sigil: counters.sigil++; break;
+                            case Objective.Glyphstone: counters.glyphstone++; break;
+                            case Objective.SerpentLock: counters.serpentLock++; break;
+                            case Objective.WallJump: counters.wallJump++; break;
+                            case Objective.Seeds: counters.seeds++; break;
                         }
                     }
                     else    //standard objective
