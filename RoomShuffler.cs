@@ -40,6 +40,8 @@ namespace GlyphsEntranceRando
                     currentRoute.Add(thePath.Peek().couple);
                     thePath.Push(currentRoute[currentRoute.Count - 1]);
                     roomChange = false;
+                    List<Connection> shuffledConnections = new List<Connection>(allRooms[thePath.Peek().roomId].connections);
+                    ShuffleList(shuffledConnections);
                     foreach (Connection c in allRooms[thePath.Peek().roomId].connections)
                     {
                         if (c.enter.id != thePath.Peek().id) continue;   //we didnt enter through this entrance so ignore
@@ -120,11 +122,11 @@ namespace GlyphsEntranceRando
                                 }
                             }
                             if (roomChange)
-                                {
-                                    currentRoute.Add(c.exit);
-                                    thePath.Push(currentRoute[currentRoute.Count - 1]);
-                                    break;
-                                }
+                            {
+                                currentRoute.Add(c.exit);
+                                thePath.Push(currentRoute[currentRoute.Count - 1]);
+                                break;
+                            }
                         }
                     }
                     stuck = !roomChange;
@@ -356,8 +358,14 @@ namespace GlyphsEntranceRando
 
         public static bool PairRemainingEntrances()
         {
+            VerifyEntrancePairings();
             while (rightEntrances.Count > 0)
             {
+                if (rightEntrances[0].couple != null)
+                {
+                    rightEntrances.RemoveAt(0);
+                    continue;
+                }
                 if (PairEntrance(rightEntrances[0]) == null)
                 {
                     MelonLogger.Error($"Failed to pair entrance {rightEntrances[0].id} at the end of randomization");
@@ -366,12 +374,18 @@ namespace GlyphsEntranceRando
             }
             while (topEntrances.Count > 0)
             {
+                if (topEntrances[0].couple != null)
+                {
+                    topEntrances.RemoveAt(0);
+                    continue;
+                }
                 if (PairEntrance(topEntrances[0]) == null)
                 {
                     MelonLogger.Error($"Failed to pair entrance {topEntrances[0].id} at the end of randomization");
                     return false;
                 }
             }
+            VerifyEntrancePairings();
             if (leftEntrances.Count > 0 || bottomEntrances.Count > 0)
             {
                 MelonLogger.Error("Some entrances failed to pair");
@@ -389,7 +403,8 @@ namespace GlyphsEntranceRando
                     break;
                 if (rightEntrances[i].couple != null)
                     rightEntrances.RemoveAt(i);
-                i++;
+                else
+                    i++;
             }
             i = 0;
             while (true)
@@ -398,7 +413,8 @@ namespace GlyphsEntranceRando
                     break;
                 if (leftEntrances[i].couple != null)
                     leftEntrances.RemoveAt(i);
-                i++;
+                else
+                    i++;
             }
             i = 0;
             while (true)
@@ -407,7 +423,8 @@ namespace GlyphsEntranceRando
                     break;
                 if (topEntrances[i].couple != null)
                     topEntrances.RemoveAt(i);
-                i++;
+                else
+                    i++;
             }
             i = 0;
             while (true)
@@ -416,7 +433,8 @@ namespace GlyphsEntranceRando
                     break;
                 if (bottomEntrances[i].couple != null)
                     bottomEntrances.RemoveAt(i);
-                i++;
+                else
+                    i++;
             }
         }
 
@@ -1200,6 +1218,19 @@ namespace GlyphsEntranceRando
                     case EntranceType.Top:      topEntrances.Add(e);    break;
                     case EntranceType.Bottom:   bottomEntrances.Add(e); break;
                 }
+            }
+            ShuffleList(leftEntrances);
+            ShuffleList(rightEntrances);
+            ShuffleList(topEntrances);
+            ShuffleList(bottomEntrances);
+        }
+
+        private static void ShuffleList<T>(List<T> list)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                int j = UnityEngine.Random.Range(i, list.Count);
+                (list[j], list[i]) = (list[i], list[j]);
             }
         }
 
