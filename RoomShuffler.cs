@@ -152,10 +152,8 @@ namespace GlyphsEntranceRando
                 List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
                 foreach (Entrance e in allEntrances)
                 {
-                    if (e.couple != null && e.id < e.couple.id) // avoids writing both (A->B) and (B->A)
-                    {
-                        pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
-                    }
+                    if (e.couple == null) continue;
+                    pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
                 }
                 string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
                 string userDataDir = MelonEnvironment.UserDataDirectory;
@@ -171,10 +169,8 @@ namespace GlyphsEntranceRando
                 List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
                 foreach (Entrance e in allEntrances)
                 {
-                    if (e.couple != null && e.id < e.couple.id) // avoids writing both (A->B) and (B->A)
-                    {
-                        pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
-                    }
+                    if (e.couple == null) continue;
+                    pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
                 }
                 string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
                 string userDataDir = MelonEnvironment.UserDataDirectory;
