@@ -49,7 +49,7 @@ namespace GlyphsEntranceRando
                     roomChange = false;
                     List<Connection> shuffledConnections = new List<Connection>(allRooms[thePath.Peek().roomId].connections);
                     ShuffleList(shuffledConnections);
-                    foreach (Connection c in allRooms[thePath.Peek().roomId].connections)
+                    foreach (Connection c in shuffledConnections)
                     {
                         if (c.enter.id != thePath.Peek().id) continue;   //we didnt enter through this entrance so ignore
                         if (c.obj != Objective.None)   //is this connection connecting to an objective?
@@ -213,49 +213,52 @@ namespace GlyphsEntranceRando
                 MelonLogger.Error($"entrance {c.exit.id} is an entrance not an objective.");
                 return false;
             }
+            bool collected = false;
             if (c.requirements == null)
             {
-                return true;
-            }
-            bool collected = false;
-            foreach (List<Requirement> list in c.requirements)
-            {
                 collected = true;
-                foreach (Requirement req in list)
+            }
+            else
+            {
+                foreach (List<Requirement> list in c.requirements)
                 {
-                    if (!HasReq(req))
+                    collected = true;
+                    foreach (Requirement req in list)
                     {
-                        collected = false;
-                        break;
-                    }
-                }
-                if (collected)
-                {
-                    if ((int)c.obj >= 0x01 && (int)c.obj <= 0x12)   //this objective is a counter
-                    {
-                        switch (c.obj)
+                        if (!HasReq(req))
                         {
-                            case Objective.SilverShard: counters.silverShard++; break;
-                            case Objective.GoldShard: counters.goldShard++; break;
-                            case Objective.SmileToken: counters.smileToken++; break;
-                            case Objective.RuneCube: counters.runeCube++; break;
-                            case Objective.VoidGateShard: counters.voidGateShard++; break;
-                            case Objective.Sigil: counters.sigil++; break;
-                            case Objective.Glyphstone: counters.glyphstone++; break;
-                            case Objective.SerpentLock: counters.serpentLock++; break;
-                            case Objective.WallJump: counters.wallJump++; break;
-                            case Objective.Seeds: counters.seeds++; break;
+                            collected = false;
+                            break;
                         }
                     }
-                    else    //standard objective
+                    if (collected) break;
+                }
+            }
+            if (collected)
+            {
+                if ((int)c.obj >= 0x01 && (int)c.obj <= 0x12)   //this objective is a counter
+                {
+                    switch (c.obj)
                     {
-                        inventory.Add(new CollectedObjective
-                        {
-                            obj = c.obj,
-                            rm = c.enter.roomId,
-                        });
+                        case Objective.SilverShard: counters.silverShard++; break;
+                        case Objective.GoldShard: counters.goldShard++; break;
+                        case Objective.SmileToken: counters.smileToken++; break;
+                        case Objective.RuneCube: counters.runeCube++; break;
+                        case Objective.VoidGateShard: counters.voidGateShard++; break;
+                        case Objective.Sigil: counters.sigil++; break;
+                        case Objective.Glyphstone: counters.glyphstone++; break;
+                        case Objective.SerpentLock: counters.serpentLock++; break;
+                        case Objective.WallJump: counters.wallJump++; break;
+                        case Objective.Seeds: counters.seeds++; break;
                     }
-                    break;
+                }
+                else    //standard objective
+                {
+                    inventory.Add(new CollectedObjective
+                    {
+                        obj = c.obj,
+                        rm = c.enter.roomId,
+                    });
                 }
             }
             return collected;
