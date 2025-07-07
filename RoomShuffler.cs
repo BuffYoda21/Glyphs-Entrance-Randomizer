@@ -282,67 +282,77 @@ namespace GlyphsEntranceRando
         {
             Entrance pairing;
             int rand;
+            if (e.couple != null)
+                return e.couple;
             switch (e.type)
             {
-                case EntranceType.Left:
+                case EntranceType.Left:  
                     if (rightEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, rightEntrances.Count);
                     pairing = rightEntrances[rand];
-                    e.couple = pairing;
                     rightEntrances.RemoveAt(rand);
+                    e.couple = pairing;
+                    pairing.couple = e;
                     for (int i = 0; i < leftEntrances.Count; i++)
                     {
-                        if (e == leftEntrances[i])
+                        if (e.id == leftEntrances[i].id)
                         {
                             leftEntrances.RemoveAt(i);
                             break;
                         }
                     }
+                    VerifyEntrancePairings();
                     return pairing;
                 case EntranceType.Right:
                     if (leftEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, leftEntrances.Count);
                     pairing = leftEntrances[rand];
-                    e.couple = pairing;
                     leftEntrances.RemoveAt(rand);
+                    e.couple = pairing;
+                    pairing.couple = e;
                     for (int i = 0; i < rightEntrances.Count; i++)
                     {
-                        if (e == rightEntrances[i])
+                        if (e.id == rightEntrances[i].id)
                         {
                             rightEntrances.RemoveAt(i);
                             break;
                         }
                     }
+                    VerifyEntrancePairings();
                     return pairing;
                 case EntranceType.Top:
                     if (bottomEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, bottomEntrances.Count);
                     pairing = bottomEntrances[rand];
-                    e.couple = pairing;
                     bottomEntrances.RemoveAt(rand);
+                    e.couple = pairing;
+                    pairing.couple = e;
                     for (int i = 0; i < topEntrances.Count; i++)
                     {
-                        if (e == topEntrances[i])
+                        if (e.id == topEntrances[i].id)
                         {
                             topEntrances.RemoveAt(i);
                             break;
                         }
                     }
+                    VerifyEntrancePairings();
                     return pairing;
                 case EntranceType.Bottom:
                     if (topEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, topEntrances.Count);
                     pairing = topEntrances[rand];
-                    e.couple = pairing;
                     topEntrances.RemoveAt(rand);
+                    e.couple = pairing;
+                    pairing.couple = e;
                     for (int i = 0; i < bottomEntrances.Count; i++)
                     {
-                        if (e == bottomEntrances[i])
+                        if (e.id == bottomEntrances[i].id)
                         {
                             bottomEntrances.RemoveAt(i);
                             break;
                         }
                     }
+                    VerifyEntrancePairings();
                     return pairing;
             }
             return null;
@@ -372,6 +382,46 @@ namespace GlyphsEntranceRando
                 return false;
             }
             return true;
+        }
+
+        private static void VerifyEntrancePairings()
+        {
+            int i = 0;
+            while (true)
+            {
+                if (i >= rightEntrances.Count)
+                    break;
+                if (rightEntrances[i].couple != null)
+                    rightEntrances.RemoveAt(i);
+                i++;
+            }
+            i = 0;
+            while (true)
+            {
+                if (i >= leftEntrances.Count)
+                    break;
+                if (leftEntrances[i].couple != null)
+                    leftEntrances.RemoveAt(i);
+                i++;
+            }
+            i = 0;
+            while (true)
+            {
+                if (i >= topEntrances.Count)
+                    break;
+                if (topEntrances[i].couple != null)
+                    topEntrances.RemoveAt(i);
+                i++;
+            }
+            i = 0;
+            while (true)
+            {
+                if (i >= bottomEntrances.Count)
+                    break;
+                if (bottomEntrances[i].couple != null)
+                    bottomEntrances.RemoveAt(i);
+                i++;
+            }
         }
 
         /*
