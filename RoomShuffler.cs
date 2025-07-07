@@ -23,13 +23,9 @@ namespace GlyphsEntranceRando
             bool goal = false;
             while ((thePath.Count == 0 || !goal) && deadEnds < 10000) //keeps going until it leaves region1 or fails
             {
-                if (thePath.Count > 0 && thePath.Peek() == allEntrances[0x0011])
-                    endVisited = true;
-                if (endVisited && HasReq(Requirement.ConstructDefeat))
-                    goal = true;
                 currentRoute = new List<Entrance>();
                 thePath.Push(allEntrances[0x0001]);
-                while (thePath.Peek() != allEntrances[0x0011] && !stuck)
+                while (!goal && !stuck)
                 {
                     backTrack = true;
                     int routesToCheck = alternateRoutes;
@@ -130,6 +126,8 @@ namespace GlyphsEntranceRando
                             }
                             if (roomChange)
                             {
+                                if (c.exit.id == 0x0011)
+                                    endVisited = true;
                                 currentRoute.Add(c.exit);
                                 thePath.Push(currentRoute[currentRoute.Count - 1]);
                                 break;
@@ -142,8 +140,12 @@ namespace GlyphsEntranceRando
                 }
                 if (stuck)
                     deadEnds++;
+                if (thePath.Count > 0 && thePath.Peek() == allEntrances[0x0011])
+                    endVisited = true;
+                if (endVisited && HasReq(Requirement.ConstructDefeat))
+                    goal = true;
             }
-            if (thePath.Peek() == allEntrances[0x0011])
+            if (goal)
             {
                 bool incomplete = false;
                 if (!PairRemainingEntrances())
@@ -174,8 +176,11 @@ namespace GlyphsEntranceRando
             }
             if (deadEnds >= 10000)
             {
-                MelonLogger.Error("Exceeded max failed randomization attempts. Outputting partial results.");
-                MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
+                if (HasReq(Requirement.Sword) && HasReq(Requirement.ConstructDefeat))
+                {
+                    MelonLogger.Error("Exceeded max failed randomization attempts. Outputting partial results.");
+                    MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
+                }
                 List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
                 foreach (Entrance e in allEntrances)
                 {
