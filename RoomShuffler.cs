@@ -11,137 +11,43 @@ namespace GlyphsEntranceRando
         public static bool Shuffle()
         {
             ResetState();
-            int deadEnds = 0;
-            int alternateRoutes = 0;
-            bool stuck = false;
-            bool roomChange;
-            bool backTrack;
-            Stack<Entrance> thePath = new Stack<Entrance>();
+            Queue<Entrance> toExplore = new Queue<Entrance>();
+            HashSet<Connection> insufficentRequirements = new HashSet<Connection>();
             CacheRooms();
             SortEntrances();
             bool endVisited = false;
             bool goal = false;
-            while ((thePath.Count == 0 || !goal) && deadEnds < 100000) //keeps going until it leaves region1 or fails
+            toExplore.Enqueue(allEntrances[0x0001]);
+            while (toExplore.Count > 0 && !goal)
             {
-                currentRoute = new List<Entrance>();
-                thePath.Push(allEntrances[0x0001]);
-                while (!goal && !stuck)
+                MelonLogger.Msg($"{toExplore.Count} entrances to explore");
+                currentEntrance = toExplore.Dequeue();
+                if (currentEntrance.couple == null)
                 {
-                    backTrack = true;
-                    int routesToCheck = alternateRoutes;
-                    currentRoute.Add(thePath.Peek());
-                    if (thePath.Peek().couple == null)
+                    PairEntrance(currentEntrance);
+                    if (currentEntrance == null)
                     {
-                        PairEntrance(thePath.Peek());
-                        backTrack = false;  //we discovered a new entrance so backTrack = false
-                        if (thePath.Peek().couple == null)
-                        {
-                            MelonLogger.Error($"Failed to find a pair for entrance {thePath.Peek().id}");
-                            return false;
-                        }
+                        MelonLogger.Error($"Failed to pair entrance {currentEntrance.id}");
+                        return false;
                     }
-                    currentRoute.Add(thePath.Peek().couple);
-                    thePath.Push(currentRoute[currentRoute.Count - 1]);
-                    roomChange = false;
-                    List<Connection> shuffledConnections = new List<Connection>(allRooms[thePath.Peek().roomId].connections);
-                    ShuffleList(shuffledConnections);
-                    foreach (Connection c in shuffledConnections)
-                    {
-                        if (c.enter.id != thePath.Peek().id) continue;   //we didnt enter through this entrance so ignore
-                        if (c.obj != Objective.None)   //is this connection connecting to an objective?
-                        {
-                            bool collected = false;
-                            foreach (CollectedObjective co in inventory)
-                            {
-                                collected = c.obj == co.obj && c.enter.roomId == co.rm;
-                                if (collected) break;
-                            }
-                            if (collected) continue;     //this objective is already collected
-                            if (TryCollectObjective(c))
-                            {
-                                for (int i = 0; i < knownObjectives.Count; i++)
-                                {
-                                    UncollectedObjective o = knownObjectives[i];
-                                    if (o.obj == c.obj && o.rm == c.enter.roomId)
-                                    {
-                                        knownObjectives.RemoveAt(i);
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                bool newConnectionMade = false;
-                                for (int i = 0; i < knownObjectives.Count; i++)
-                                {
-                                    UncollectedObjective o = knownObjectives[i];
-                                    if (o.obj == c.obj && o.rm == c.enter.roomId && !o.connections.Contains(c))
-                                    {
-                                        o.connections.Add(c);
-                                        newConnectionMade = true;
-                                        break;
-                                    }
-                                }
-                                if (!newConnectionMade)
-                                {
-                                    knownObjectives.Add(new UncollectedObjective
-                                    {
-                                        obj = c.obj,
-                                        rm = c.enter.roomId,
-                                        connections = new List<Connection> { c },
-                                    });
-                                }
-                            }
-                        }
-                        else    //this connection must be connecting to another entrance
-                        {
-
-                            if (c.exit.couple != null && !backTrack) //checks to see if we have tried this entrance on previous itterations 
-                                continue;
-                            if (backTrack && routesToCheck > 0) //checks to see if we should ignore the fact we are backtracking through a previous route and try other entrances to prevent infinite loops over the same route
-                            {
-                                routesToCheck--;
-                                continue;
-                            }
-                            if (c.requirements == null)
-                                roomChange = true;
-                            else
-                            {
-                                foreach (List<Requirement> list in c.requirements)
-                                {
-                                    roomChange = true;
-                                    foreach (Requirement req in list)
-                                    {
-                                        if (!HasReq(req))
-                                        {
-                                            roomChange = false;
-                                            break;
-                                        }
-                                    }
-                                    if (roomChange)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            if (roomChange)
-                            {
-                                if (c.exit.id == 0x0011)
-                                    endVisited = true;
-                                currentRoute.Add(c.exit);
-                                thePath.Push(currentRoute[currentRoute.Count - 1]);
-                                break;
-                            }
-                        }
-                    }
-                    stuck = !roomChange;
-                    if (!roomChange && !backTrack)
-                        alternateRoutes++;
                 }
-                if (stuck)
-                    deadEnds++;
-                if (thePath.Count > 0 && thePath.Peek() == allEntrances[0x0011])
-                    endVisited = true;
+                List<Connection> shuffledConnections = new List<Connection>(allRooms[currentEntrance.couple.roomId].connections);
+                ShuffleList(shuffledConnections);
+                foreach (Connection c in shuffledConnections)
+                {
+                    if (c.enter.id != currentEntrance.couple.id) continue;   //we didnt enter through this entrance so ignore
+                    if (CheckConnection(c))
+                        toExplore.Enqueue(c.exit);
+                    else if (c.exit != null)
+                        insufficentRequirements.Add(c);
+                }
+                foreach (Connection c in insufficentRequirements)
+                {
+                        if (CheckConnection(c))
+                            toExplore.Enqueue(c.exit);
+                }
+                if (allEntrances[0x0011].couple != null)
+                        endVisited = true;
                 if (endVisited && HasReq(Requirement.ConstructDefeat))
                     goal = true;
             }
@@ -170,17 +76,14 @@ namespace GlyphsEntranceRando
                 string userDataDir = MelonEnvironment.UserDataDirectory;
                 string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
                 File.WriteAllText(savePath, json);
-                if(!incomplete)
+                if (!incomplete)
                     return true;
                 return false;
             }
-            if (deadEnds >= 100000)
+            else
             {
-                if (HasReq(Requirement.Sword) && HasReq(Requirement.ConstructDefeat))
-                {
-                    MelonLogger.Error("Exceeded max failed randomization attempts. Outputting partial results.");
-                    MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
-                }
+                MelonLogger.Error("Randomization Failed. Outputting partial results.");
+                MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
                 List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
                 foreach (Entrance e in allEntrances)
                 {
@@ -191,10 +94,8 @@ namespace GlyphsEntranceRando
                 string userDataDir = MelonEnvironment.UserDataDirectory;
                 string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
                 File.WriteAllText(savePath, json);
+                return false;
             }
-            else
-                MelonLogger.Error("An unknown error occured in randomization.");
-            return false;
         }
         
         private static void ResetState()
@@ -209,6 +110,85 @@ namespace GlyphsEntranceRando
             knownObjectives.Clear();
             inventory.Clear();
             counters = new InventoryCounters();
+        }
+
+        private static bool CheckConnection(Connection c)   //returns true if a new entrance should be added to toExplore
+        {
+
+            if (c.obj != Objective.None)   //is this connection connecting to an objective?
+            {
+                bool collected = false;
+                foreach (CollectedObjective co in inventory)
+                {
+                    collected = c.obj == co.obj && c.enter.roomId == co.rm;
+                    if (collected) break;
+                }
+                if (collected) return false;     //this objective is already collected
+                if (TryCollectObjective(c))
+                {
+                    for (int i = 0; i < knownObjectives.Count; i++)
+                    {
+                        UncollectedObjective o = knownObjectives[i];
+                        if (o.obj == c.obj && o.rm == c.enter.roomId)
+                        {
+                            knownObjectives.RemoveAt(i);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    bool newConnectionMade = false;
+                    for (int i = 0; i < knownObjectives.Count; i++)
+                    {
+                        UncollectedObjective o = knownObjectives[i];
+                        if (o.obj == c.obj && o.rm == c.enter.roomId && !o.connections.Contains(c))
+                        {
+                            o.connections.Add(c);
+                            newConnectionMade = true;
+                            break;
+                        }
+                    }
+                    if (!newConnectionMade)
+                    {
+                        knownObjectives.Add(new UncollectedObjective
+                        {
+                            obj = c.obj,
+                            rm = c.enter.roomId,
+                            connections = new List<Connection> { c },
+                        });
+                    }
+                }
+            }
+            else    //this connection must be connecting to another entrance
+            {
+                if (c.exit.couple != null) return false;    //this entrance is already coupled meaning we visited it already so ignore
+                bool reqMet = false;
+                if (c.requirements == null)
+                    reqMet = true;
+                else
+                {
+                    foreach (List<Requirement> list in c.requirements)
+                    {
+                        reqMet = true;
+                        foreach (Requirement req in list)
+                        {
+                            if (!HasReq(req))
+                            {
+                                reqMet = false;
+                                break;
+                            }
+                        }
+                        if (reqMet)
+                        {
+                            break;
+                        }
+                    }
+                }
+                if (reqMet)
+                    return true;
+            }
+            return false;
         }
 
         private static bool TryCollectObjective(Connection c)
@@ -1275,7 +1255,7 @@ namespace GlyphsEntranceRando
         public static List<UncollectedObjective> knownObjectives = new List<UncollectedObjective>();
         public static List<CollectedObjective> inventory = new List<CollectedObjective>();
         public static InventoryCounters counters = new InventoryCounters();
-        public static List<Entrance> currentRoute;
+        public static Entrance currentEntrance;
 
         public class UncollectedObjective
         {

@@ -1,7 +1,7 @@
 using MelonLoader;
 using System.Collections.Generic;
 
-[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.1.0", "BuffYoda21")]
+[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.2.0", "BuffYoda21")]
 [assembly: MelonGame("Vortex Bros.", "GLYPHS")]
 
 namespace GlyphsEntranceRando
@@ -76,11 +76,6 @@ namespace GlyphsEntranceRando
             this.id = id;
             this.roomId = roomId;
             this.type = type;
-        }
-
-        public void AddCouple(Entrance couple)
-        {
-            this.couple = couple;
         }
 
         public ushort id = 0x0000;
