@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using Il2CppSystem.IO;
 using MelonLoader;
 using MelonLoader.Utils;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace GlyphsEntranceRando
 {

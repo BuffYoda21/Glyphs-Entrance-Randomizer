@@ -1,9 +1,9 @@
+using System.Collections.Generic;
 using Il2CppSystem.IO;
 using MelonLoader;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
-[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.2.0", "BuffYoda21")]
+[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.3.0", "BuffYoda21")]
 [assembly: MelonGame("Vortex Bros.", "GLYPHS")]
 
 namespace GlyphsEntranceRando
@@ -13,7 +13,9 @@ namespace GlyphsEntranceRando
         [System.Obsolete]
         public override void OnApplicationStart()
         {
-
+            var harmony = new HarmonyLib.Harmony("GlyphsEntranceRando");
+            harmony.PatchAll();
+            LoadRandomizedEntrances();
         }
 
         public void LoadRandomizedEntrances()
@@ -26,8 +28,8 @@ namespace GlyphsEntranceRando
                 try
                 {
                     string json = File.ReadAllText(savePath);
-                    entrancePairs = JsonConvert.DeserializeObject<List<RoomShuffler.SerializedEntrancePair>>(json);
-                    if (entrancePairs != null && entrancePairs.Count == 54)
+                    WarpManager.entrancePairs = JsonConvert.DeserializeObject<List<RoomShuffler.SerializedEntrancePair>>(json);
+                    if (WarpManager.entrancePairs != null && WarpManager.entrancePairs.Count == 54)
                     {
                         MelonLogger.Msg("Loaded existing RandomizationResults.json.");
                         loaded = true;
@@ -57,7 +59,7 @@ namespace GlyphsEntranceRando
             }
         }
 
-        public static List<RoomShuffler.SerializedEntrancePair> entrancePairs = new List<RoomShuffler.SerializedEntrancePair>();
+        
     }
 
     public class Room
