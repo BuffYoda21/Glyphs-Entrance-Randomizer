@@ -1,4 +1,6 @@
+using Il2CppSystem.IO;
 using MelonLoader;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 [assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.2.0", "BuffYoda21")]
@@ -11,21 +13,51 @@ namespace GlyphsEntranceRando
         [System.Obsolete]
         public override void OnApplicationStart()
         {
-            bool randomizationSuccess = false;
-            for (int i = 0; i > -1; i++)
+
+        }
+
+        public void LoadRandomizedEntrances()
+        {
+            string userDataDir = MelonLoader.Utils.MelonEnvironment.UserDataDirectory;
+            string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
+            bool loaded = false;
+            if (File.Exists(savePath))
             {
-                if (RoomShuffler.Shuffle())
+                try
                 {
-                    randomizationSuccess = true;
-                    MelonLogger.Msg($"{i} randomization attempts tried");
-                    break;
+                    string json = File.ReadAllText(savePath);
+                    entrancePairs = JsonConvert.DeserializeObject<List<RoomShuffler.SerializedEntrancePair>>(json);
+                    if (entrancePairs != null && entrancePairs.Count == 54)
+                    {
+                        MelonLogger.Msg("Loaded existing RandomizationResults.json.");
+                        loaded = true;
+                    }
+                    else
+                    {
+                        MelonLogger.Warning("RandomizationResults.json is incomplete or invalid, generating new seed.");
+                    }
+                }
+                catch
+                {
+                    MelonLogger.Error("Failed to load RandomizationResults.json, generating new seed.");
                 }
             }
-            if (randomizationSuccess)
-                MelonLogger.Msg("Randomization Successful!");
-            else
-                MelonLogger.Error("Max retries reached. Quitting...");
+            if(!loaded)
+            {
+                for (int i = 0; i > -1; i++)
+                {
+                    if (RoomShuffler.Shuffle())
+                    {
+                        MelonLogger.Msg($"{i} randomization attempts tried");
+                        MelonLogger.Msg("Randomization Successful!");
+                        LoadRandomizedEntrances();
+                        break;
+                    }
+                }
+            }
         }
+
+        public static List<RoomShuffler.SerializedEntrancePair> entrancePairs = new List<RoomShuffler.SerializedEntrancePair>();
     }
 
     public class Room
