@@ -12,11 +12,12 @@ namespace GlyphsEntranceRando
         public override void OnApplicationStart()
         {
             bool randomizationSuccess = false;
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i > -1; i++)
             {
                 if (RoomShuffler.Shuffle())
                 {
                     randomizationSuccess = true;
+                    MelonLogger.Msg($"{i} randomization attempts tried");
                     break;
                 }
             }

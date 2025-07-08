@@ -21,7 +21,7 @@ namespace GlyphsEntranceRando
             SortEntrances();
             bool endVisited = false;
             bool goal = false;
-            while ((thePath.Count == 0 || !goal) && deadEnds < 10000) //keeps going until it leaves region1 or fails
+            while ((thePath.Count == 0 || !goal) && deadEnds < 100000) //keeps going until it leaves region1 or fails
             {
                 currentRoute = new List<Entrance>();
                 thePath.Push(allEntrances[0x0001]);
@@ -174,7 +174,7 @@ namespace GlyphsEntranceRando
                     return true;
                 return false;
             }
-            if (deadEnds >= 10000)
+            if (deadEnds >= 100000)
             {
                 if (HasReq(Requirement.Sword) && HasReq(Requirement.ConstructDefeat))
                 {
