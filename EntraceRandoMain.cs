@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Il2CppInterop.Runtime.Injection;
 using Il2CppSystem.IO;
 using MelonLoader;
 using Newtonsoft.Json;
 
-[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.3.0", "BuffYoda21")]
+[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.4.0", "BuffYoda21")]
 [assembly: MelonGame("Vortex Bros.", "GLYPHS")]
 
 namespace GlyphsEntranceRando
@@ -16,6 +17,7 @@ namespace GlyphsEntranceRando
             var harmony = new HarmonyLib.Harmony("GlyphsEntranceRando");
             harmony.PatchAll();
             LoadRandomizedEntrances();
+            ClassInjector.RegisterTypeInIl2Cpp<DynamicTp>();
         }
 
         public void LoadRandomizedEntrances()

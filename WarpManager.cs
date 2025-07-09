@@ -25,10 +25,35 @@ namespace GlyphsEntranceRando
                     {
                         GameObject warp = new GameObject($"0x{pair.entrance:X4}");
                         warp.transform.SetParent(warpParent.transform);
+                        PlaceWarp(warp, pair);
                         warps.Add(warp);
-
+                    }
+                    foreach (GameObject warp in warps)
+                    {
+                        if (warp.GetComponent<DynamicTp>())
+                            warp.GetComponent<DynamicTp>().RegisterTargetFromId(warps);
                     }
                 }
+            }
+        }
+
+        private static void PlaceWarp(GameObject warp, RoomShuffler.SerializedEntrancePair pair)
+        {
+            warp.AddComponent<DynamicTp>();
+            warp.GetComponent<DynamicTp>().id = pair.entrance;
+            warp.GetComponent<DynamicTp>().targetId = pair.couple;
+            warp.AddComponent<BoxCollider2D>();
+            warp.GetComponent<BoxCollider2D>().isTrigger = true;
+            switch (pair.entrance)
+            {
+                case 0x0001:
+                    warp.transform.position = new Vector3(14.1f, 1.6f, 0f);
+                    warp.transform.localScale = new Vector3(0.25f, 8.75f, 1f);
+                    warp.GetComponent<DynamicTp>().type = EntranceType.Right; break;
+                case 0x000E:
+                    warp.transform.position = new Vector3(185.4f, 4.825f, 0f);
+                    warp.transform.localScale = new Vector3(0.25f, 2.4f, 1f);
+                    warp.GetComponent<DynamicTp>().type = EntranceType.Left; break;
             }
         }
 
