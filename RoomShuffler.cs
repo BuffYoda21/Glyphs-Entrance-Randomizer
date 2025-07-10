@@ -73,11 +73,9 @@ namespace GlyphsEntranceRando {
             counters = new InventoryCounters();
         }
 
-        private static bool CheckConnection(Connection c)   //returns true if a new entrance should be added to toExplore
-        {
+        private static bool CheckConnection(Connection c) { //returns true if a new entrance should be added to toExplore
 
-            if (c.obj != Objective.None)   //is this connection connecting to an objective?
-            {
+            if (c.obj != Objective.None) { //is this connection connecting to an objective?
                 bool collected = false;
                 foreach (CollectedObjective co in inventory) {
                     collected = c.obj == co.obj && c.enter.roomId == co.rm;
@@ -110,8 +108,7 @@ namespace GlyphsEntranceRando {
                         });
                     }
                 }
-            } else    //this connection must be connecting to another entrance
-              {
+            } else { //this connection must be connecting to another entrance
                 if (c.exit.couple != null) return false;    //this entrance is already coupled meaning we visited it already so ignore
                 bool reqMet = false;
                 if (c.requirements == null)
@@ -157,8 +154,7 @@ namespace GlyphsEntranceRando {
                 }
             }
             if (collected) {
-                if ((int)c.obj >= 0x01 && (int)c.obj <= 0x12)   //this objective is a counter
-                {
+                if ((int)c.obj >= 0x01 && (int)c.obj <= 0x12) { //this objective is a counter
                     switch (c.obj) {
                         case Objective.SilverShard: counters.silverShard++; break;
                         case Objective.GoldShard: counters.goldShard++; break;
@@ -171,8 +167,7 @@ namespace GlyphsEntranceRando {
                         case Objective.WallJump: counters.wallJump++; break;
                         case Objective.Seeds: counters.seeds++; break;
                     }
-                } else    //standard objective
-                  {
+                } else { //standard objective
                     inventory.Add(new CollectedObjective {
                         obj = c.obj,
                         rm = c.enter.roomId,
@@ -183,8 +178,7 @@ namespace GlyphsEntranceRando {
         }
 
         private static bool HasReq(Requirement req) {
-            if ((int)req >= 0x01 && (int)req <= 0x12)   //this requirement is a counter
-            {
+            if ((int)req >= 0x01 && (int)req <= 0x12) { //this requirement is a counter
                 switch (req) {
                     case Requirement.SilverShardx15: return counters.silverShard >= 15;
                     case Requirement.GoldShardx1: return counters.goldShard >= 1;
@@ -205,8 +199,7 @@ namespace GlyphsEntranceRando {
                     case Requirement.Seedsx10: return counters.seeds >= 10;
                 }
                 return false;
-            } else    //standard requirement
-              {
+            } else { //standard requirement
                 foreach (CollectedObjective cobj in inventory) {
                     if ((int)req == (int)cobj.obj)
                         return true;
