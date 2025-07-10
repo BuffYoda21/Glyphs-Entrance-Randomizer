@@ -7,51 +7,37 @@ using Newtonsoft.Json;
 [assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.4.0", "BuffYoda21")]
 [assembly: MelonGame("Vortex Bros.", "GLYPHS")]
 
-namespace GlyphsEntranceRando
-{
-    public class Main : MelonMod
-    {
+namespace GlyphsEntranceRando {
+    public class Main : MelonMod {
         [System.Obsolete]
-        public override void OnApplicationStart()
-        {
+        public override void OnApplicationStart() {
             var harmony = new HarmonyLib.Harmony("GlyphsEntranceRando");
             harmony.PatchAll();
             LoadRandomizedEntrances();
             ClassInjector.RegisterTypeInIl2Cpp<DynamicTp>();
         }
 
-        public void LoadRandomizedEntrances()
-        {
+        public void LoadRandomizedEntrances() {
             string userDataDir = MelonLoader.Utils.MelonEnvironment.UserDataDirectory;
             string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
             bool loaded = false;
-            if (File.Exists(savePath))
-            {
-                try
-                {
+            if (File.Exists(savePath)) {
+                try {
                     string json = File.ReadAllText(savePath);
                     WarpManager.entrancePairs = JsonConvert.DeserializeObject<List<RoomShuffler.SerializedEntrancePair>>(json);
-                    if (WarpManager.entrancePairs != null && WarpManager.entrancePairs.Count == 54)
-                    {
+                    if (WarpManager.entrancePairs != null && WarpManager.entrancePairs.Count == 54) {
                         MelonLogger.Msg("Loaded existing RandomizationResults.json.");
                         loaded = true;
-                    }
-                    else
-                    {
+                    } else {
                         MelonLogger.Warning("RandomizationResults.json is incomplete or invalid, generating new seed.");
                     }
-                }
-                catch
-                {
+                } catch {
                     MelonLogger.Error("Failed to load RandomizationResults.json, generating new seed.");
                 }
             }
-            if(!loaded)
-            {
-                for (int i = 0; i > -1; i++)
-                {
-                    if (RoomShuffler.Shuffle())
-                    {
+            if (!loaded) {
+                for (int i = 0; i > -1; i++) {
+                    if (RoomShuffler.Shuffle()) {
                         MelonLogger.Msg($"{i} randomization attempts tried");
                         MelonLogger.Msg("Randomization Successful!");
                         LoadRandomizedEntrances();
@@ -61,11 +47,10 @@ namespace GlyphsEntranceRando
             }
         }
 
-        
+
     }
 
-    public class Room
-    {
+    public class Room {
         public byte id = 0x00;
         public bool canMap = true;
         public bool bossRoom = false;
@@ -75,8 +60,7 @@ namespace GlyphsEntranceRando
         public bool isStartRoom = false;
     }
 
-    public class Connection
-    {
+    public class Connection {
         public Connection(Entrance enter, Entrance exit, List<List<Requirement>> req) {
             this.enter = enter;
             this.exit = exit;
@@ -84,16 +68,14 @@ namespace GlyphsEntranceRando
             this.obj = Objective.None;
         }
 
-        public Connection(Entrance enter, Objective obj, List<List<Requirement>> req)
-        {
+        public Connection(Entrance enter, Objective obj, List<List<Requirement>> req) {
             this.enter = enter;
             this.exit = null;
             this.requirements = req;
             this.obj = obj;
         }
 
-        public Connection(Entrance enter, List<List<Requirement>> req)
-        {
+        public Connection(Entrance enter, List<List<Requirement>> req) {
             this.enter = enter;
             this.exit = enter;
             this.requirements = req;
@@ -105,10 +87,8 @@ namespace GlyphsEntranceRando
         public List<List<Requirement>> requirements = new List<List<Requirement>>();
     }
 
-    public class Entrance
-    {
-        public Entrance(ushort id, byte roomId, EntranceType type)
-        {
+    public class Entrance {
+        public Entrance(ushort id, byte roomId, EntranceType type) {
             this.id = id;
             this.roomId = roomId;
             this.type = type;
@@ -120,8 +100,7 @@ namespace GlyphsEntranceRando
         public Entrance couple = null;
     }
 
-    public enum Objective : byte
-    {
+    public enum Objective : byte {
         None = 0x00,
 
         //Collectables and other counters
@@ -187,8 +166,7 @@ namespace GlyphsEntranceRando
         SaveShard = 0x3A,
     }
 
-    public enum Requirement : byte
-    {
+    public enum Requirement : byte {
         None = 0x00,
 
         //Collectables and other counters
@@ -261,8 +239,7 @@ namespace GlyphsEntranceRando
         SaveShard = 0x3A,
     }
 
-    public enum EntranceType : byte
-    {
+    public enum EntranceType : byte {
         Right = 0x00,
         Left = 0x01,
         Top = 0x02,

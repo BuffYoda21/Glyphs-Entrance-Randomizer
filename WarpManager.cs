@@ -4,32 +4,25 @@ using HarmonyLib;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
-namespace GlyphsEntranceRando
-{
+namespace GlyphsEntranceRando {
     [HarmonyPatch]
-    public static class WarpManager
-    {
+    public static class WarpManager {
         [HarmonyPatch(typeof(SceneManager), "Internal_SceneLoaded")]
         [HarmonyPostfix]
-        public static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
+        public static void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
             if (scene.handle == lastSceneHandle)
                 return;
             lastSceneHandle = scene.handle;
-            if (scene.name == "Game")
-            {
+            if (scene.name == "Game") {
                 warpParent = new GameObject("Warps");
-                if (entrancePairs != null)
-                {
-                    foreach (RoomShuffler.SerializedEntrancePair pair in entrancePairs)
-                    {
+                if (entrancePairs != null) {
+                    foreach (RoomShuffler.SerializedEntrancePair pair in entrancePairs) {
                         GameObject warp = new GameObject($"0x{pair.entrance:X4}");
                         warp.transform.SetParent(warpParent.transform);
                         PlaceWarp(warp, pair);
                         warps.Add(warp);
                     }
-                    foreach (GameObject warp in warps)
-                    {
+                    foreach (GameObject warp in warps) {
                         if (warp.GetComponent<DynamicTp>())
                             warp.GetComponent<DynamicTp>().RegisterTargetFromId(warps);
                     }
@@ -37,15 +30,13 @@ namespace GlyphsEntranceRando
             }
         }
 
-        private static void PlaceWarp(GameObject warp, RoomShuffler.SerializedEntrancePair pair)
-        {
+        private static void PlaceWarp(GameObject warp, RoomShuffler.SerializedEntrancePair pair) {
             warp.AddComponent<DynamicTp>();
             warp.GetComponent<DynamicTp>().id = pair.entrance;
             warp.GetComponent<DynamicTp>().targetId = pair.couple;
             warp.AddComponent<BoxCollider2D>();
             warp.GetComponent<BoxCollider2D>().isTrigger = true;
-            switch (pair.entrance)
-            {
+            switch (pair.entrance) {
                 case 0x0001:
                     warp.transform.position = new Vector3(14.1f, 1.6f, 0f);
                     warp.transform.localScale = new Vector3(0.25f, 8.75f, 1f);
