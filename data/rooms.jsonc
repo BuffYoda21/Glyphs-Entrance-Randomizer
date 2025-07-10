@@ -1,0 +1,391 @@
+// Format is roomid -> room
+// Each room has a list of hexadecimal entrance ids, a list of connections, and boolean properties
+// each connection is an [entranceid, exit or objective, list<requirement>]
+// If the second value is hexadecimal, it is an entrance id, otherwise it is an objective
+{
+  "0x00": {
+    "entrances": [
+      "0x0000" //bottom
+    ],
+    "connections": [
+      ["0x0000", "0x0000", null],
+      ["0x0000", "SilverShard", null]
+    ]
+  },
+  "0x01": {
+    "entrances": [
+      "0x0001" //right
+    ],
+    "connections": [["0x0001", "0x0001", null]],
+    "isStartRoom": true
+  },
+  "0x02": {
+    "entrances": [
+      "0x0002", //left
+      "0x0003" //right
+    ],
+    "connections": [
+      ["0x0002", "0x0002", null],
+      ["0x0003", "0x0003", null],
+      ["0x0002", "0x0003", null],
+      ["0x0003", "0x0002", null]
+    ]
+  },
+  "0x03": {
+    "entrances": [
+      "0x0004", //left
+      "0x0005" //right
+    ],
+    "connections": [
+      ["0x0004", "0x0004", null],
+      ["0x0005", "0x0005", null],
+      ["0x0004", "0x0005", null],
+      ["0x0005", "0x0004", null],
+      ["0x0004", "SaveButton", null],
+      ["0x0005", "SaveButton", null]
+    ],
+    "hasWarp": true
+  },
+  "0x04": {
+    "entrances": [
+      "0x0006", //left
+      "0x0007", //right
+      "0x0008" //bottom
+    ],
+    "connections": [
+      ["0x0006", "0x0006", null],
+      ["0x0007", "0x0007", null],
+      ["0x0008", "0x0008", null],
+      ["0x0006", "0x0007", [["DashOrb"]]],
+      ["0x0007", "0x0006", [["DashOrb"]]],
+      ["0x0006", "0x0008", null],
+      ["0x0008", "0x0006", [["VerticalMomentum"]]],
+      ["0x0007", "0x0008", null],
+      ["0x0008", "0x0007", [["VerticalMomentum"]]]
+    ]
+  },
+  "0x05": {
+    "entrances": [
+      "0x0009", //left
+      "0x000A" //right
+    ],
+    "connections": [
+      ["0x0009", "0x0009", null],
+      ["0x000A", "0x000A", null],
+      ["0x0009", "0x000A", [["DashOrb"]]],
+      ["0x000A", "0x0009", null]
+    ]
+  },
+  "0x06": {
+    "entrances": [
+      "0x000B", //left
+      "0x000C", //right
+      "0x000D" //top
+    ],
+    "connections": [
+      ["0x000B", "0x000B", null],
+      ["0x000C", "0x000C", null],
+      ["0x000D", "0x000D", [["DashOrb"]]],
+      ["0x000B", "0x000C", [["DashOrb"]]],
+      ["0x000C", "0x000B", null],
+      ["0x000B", "0x000D", [["DashOrb", "Grapple"]]],
+      ["0x000D", "0x000B", null],
+      ["0x000C", "0x000D", [["DashOrb", "Grapple"]]],
+      ["0x000D", "0x000C", [["DashOrb"]]]
+    ]
+  },
+  "0x07": {
+    "entrances": [
+      "0x000E", //left
+      "0x000F", //right
+      "0x0010" //bottom
+    ],
+    "connections": [
+      ["0x000E", "0x000E", null],
+      ["0x000F", "0x000F", null],
+      ["0x0010", "0x0010", null],
+      ["0x000E", "0x000F", null],
+      ["0x000F", "0x000E", [["DashOrb"]]],
+      ["0x000E", "0x0010", null],
+      ["0x0010", "0x000E", [["DashOrb", "VerticalMomentum"]]],
+      ["0x000F", "0x0010", null],
+      ["0x0010", "0x000F", [["VerticalMomentum"]]]
+    ]
+  },
+  "0x08": {
+    "entrances": [
+      "0x0011" //left
+    ],
+    "connections": [
+      ["0x0011", "0x0011", null],
+      ["0x0011", "SaveButton", null]
+    ],
+    "hasWarp": true
+  },
+  "0x09": {
+    "entrances": [
+      "0x0012" //right
+    ],
+    "connections": [
+      ["0x0012", "0x0012", null],
+      ["0x0012", "SilverShard", [["DashOrb"]]]
+    ]
+  },
+  "0x0A": {
+    "entrances": [
+      "0x0013", //left to shard room
+      "0x0014", //left to smile token room
+      "0x0015", //right to map room
+      "0x0016", //right to flower passage
+      "0x0017" //right towards construct
+    ],
+    "connections": [
+      ["0x0013", "0x0013", null],
+      ["0x0014", "0x0014", null],
+      ["0x0015", "0x0015", null],
+      ["0x0016", "0x0016", null],
+      ["0x0017", "0x0017", null],
+      ["0x0013", "0x0014", null],
+      ["0x0014", "0x0013", [["DashOrb"]]],
+      ["0x0013", "0x0015", null],
+      ["0x0015", "0x0013", [["DashOrb"]]],
+      ["0x0013", "0x0016", [["FlowerPuzzle"]]],
+      ["0x0016", "0x0013", [["DashOrb", "FlowerPuzzle"]]],
+      ["0x0013", "0x0017", [["DashOrb", "WallJumpx1"]]],
+      ["0x0017", "0x0013", [["DashOrb"]]],
+      ["0x0014", "0x0015", [["DashOrb"]]],
+      ["0x0015", "0x0014", null],
+      ["0x0014", "0x0016", [["DashOrb", "FlowerPuzzle"]]],
+      ["0x0016", "0x0014", [["FlowerPuzzle"]]],
+      ["0x0014", "0x0017", [["DashOrb", "WallJumpx1"]]],
+      ["0x0017", "0x0014", [["DashOrb"]]],
+      ["0x0015", "0x0016", [["FlowerPuzzle"]]],
+      ["0x0016", "0x0015", [["DashOrb", "FlowerPuzzle"]]],
+      ["0x0015", "0x0017", [["DashOrb", "WallJumpx1"]]],
+      ["0x0017", "0x0015", [["DashOrb"]]],
+      ["0x0016", "0x0017", [["DashOrb", "FlowerPuzzle", "WallJumpx1"]]],
+      ["0x0017", "0x0016", [["DashOrb", "FlowerPuzzle"]]],
+      ["0x0013", "SaveButton", null],
+      ["0x0014", "SaveButton", [["DashOrb"]]],
+      ["0x0015", "SaveButton", null],
+      ["0x0016", "SaveButton", [["DashOrb", "FlowerPuzzle"]]],
+      ["0x0017", "SaveButton", [["DashOrb"]]]
+    ],
+    "hasWarp": true
+  },
+  "0x0B": {
+    "entrances": [
+      "0x0018", //left
+      "0x0019" //right
+    ],
+    "connections": [
+      ["0x0018", "0x0018", null],
+      ["0x0019", "0x0019", null],
+      ["0x0018", "0x0018", [["DashOrb", "Map"]]],
+      ["0x0018", "Map", [["DashOrb"]]],
+      ["0x0019", "Map", [["Map"]]]
+    ]
+  },
+  "0x0C": {
+    "entrances": [
+      "0x001A", //left
+      "0x001B", //right
+      "0x001C" //bottom
+    ],
+    "connections": [
+      ["0x001A", "0x001A", null],
+      ["0x001B", "0x001B", null],
+      ["0x001C", "0x001C", null],
+      ["0x001A", "0x001B", null],
+      ["0x001B", "0x001A", [["DashOrb", "WallJumpx1"]]],
+      ["0x001A", "0x001C", null],
+      ["0x001C", "0x001A", [["DashOrb", "WallJumpx1"]]],
+      ["0x001B", "0x001C", null],
+      ["0x001C", "0x001B", [["DashOrb"], ["VerticalMomentum"]]]
+    ]
+  },
+  "0x0D": {
+    "entrances": [
+      "0x001D", //left
+      "0x001E", //right
+      "0x001F" //top
+    ],
+    "connections": [
+      ["0x001D", "0x001D", null],
+      ["0x001E", "0x001E", null],
+      [
+        "0x001F",
+        "0x001F",
+        [
+          ["DashOrb", "WallJumpx1"],
+          ["DashOrb", "FlowerPuzzle"]
+        ]
+      ],
+      [
+        "0x001D",
+        "0x001E",
+        [
+          ["DashOrb", "WallJumpx1"],
+          ["DashOrb", "FlowerPuzzle"]
+        ]
+      ],
+      ["0x001E", "0x001D", null],
+      [
+        "0x001D",
+        "0x001F",
+        [
+          ["DashOrb", "WallJumpx1"],
+          ["DashOrb", "FlowerPuzzle"]
+        ]
+      ],
+      ["0x001F", "0x001D", null],
+      ["0x001E", "0x001F", [["DashOrb"]]],
+      ["0x001F", "0x001E", [["DashOrb"]]],
+      ["0x001D", "VerticalMomentum", [["DashOrb", "FlowerPuzzle"]]],
+      ["0x001E", "VerticalMomentum", [["DashOrb", "FlowerPuzzle"]]],
+      ["0x001F", "VerticalMomentum", [["DashOrb", "FlowerPuzzle"]]]
+    ]
+  },
+  "0x0E": {
+    "entrances": [
+      "0x0020" //left
+    ],
+    "connections": [["0x0020", "0x0020", null]]
+  },
+  "0x0F": {
+    "entrances": [
+      "0x0021" //top
+    ],
+    "connections": [["0x0021", "SilverShard", [["DashOrb"]]]]
+  },
+  "0x10": {
+    "entrances": [
+      "0x0022", //right
+      "0x0023" //bottom
+    ],
+    "connections": [
+      ["0x0023", "0x0023", null],
+      ["0x0022", "0x0023", null]
+    ]
+  },
+  "0x11": {
+    "entrances": [
+      "0x0024", //left
+      "0x0025" //top
+    ],
+    "connections": [
+      ["0x0024", "0x0024", null],
+      ["0x0025", "0x0025", [["DashOrb"]]],
+      ["0x0024", "0x0025", [["DashOrb"]]],
+      ["0x0025", "0x0024", null]
+    ]
+  },
+  "0x12": {
+    "entrances": [
+      "0x0026" //bottom
+    ],
+    "connections": [
+      ["0x0026", "0x0026", null],
+      ["0x0026", "RuneCube", [["DashOrb"]]]
+    ]
+  },
+  "0x13": {
+    "entrances": [
+      "0x0027" //right
+    ],
+    "connections": [
+      ["0x0027", "0x0027", null],
+      ["0x0027", "SmileToken", [["DashOrb"]]]
+    ]
+  },
+  "0x14": {
+    "entrances": [
+      "0x0028", //left
+      "0x0029", //right
+      "0x002A" //top,
+    ],
+    "connections": [
+      ["0x0028", "0x0028", [["FlowerPuzzle"]]],
+      ["0x0029", "0x0029", null],
+      ["0x0028", "0x0029", [["FlowerPuzzle"]]],
+      ["0x0029", "0x0028", [["FlowerPuzzle"]]],
+      ["0x002A", "0x0028", [["FlowerPuzzle"]]],
+      ["0x002A", "0x0029", null]
+    ]
+  },
+  "0x15": {
+    "entrances": [
+      "0x002B", //left
+      "0x002C" //right
+    ],
+    "connections": [
+      ["0x002B", "0x002B", null],
+      ["0x002C", "0x002C", null],
+      ["0x002B", "0x002C", null],
+      ["0x002C", "0x002B", null],
+      ["0x002B", "Sword", null],
+      ["0x002C", "Sword", null]
+    ]
+  },
+  "0x16": {
+    "entrances": [
+      "0x002D", //left
+      "0x002E", //top
+      "0x002F" //bottom
+    ],
+    "connections": [
+      ["0x002D", "0x002D", null],
+      ["0x002E", "0x002E", [["VerticalMomentum"]]],
+      ["0x002F", "0x002F", null],
+      ["0x002D", "0x002E", [["VerticalMomentum"]]],
+      ["0x002E", "0x002D", null],
+      ["0x002D", "0x002F", null],
+      ["0x002F", "0x002D", [["VerticalMomentum"], ["DashOrb"]]],
+      ["0x002E", "0x002F", null],
+      ["0x002F", "0x002E", [["VerticalMomentum"]]],
+      ["0x002F", "VerticalMomentum", [["DashOrb", "Grapple"]]],
+      ["0x002E", "VerticalMomentum", [["DashOrb", "Grapple"]]],
+      ["0x002F", "VerticalMomentum", [["DashOrb", "Grapple"]]]
+    ]
+  },
+  "0x17": {
+    "entrances": [
+      "0x0030", //Left
+      "0x0031" //Right
+    ],
+    "connections": [
+      ["0x0030", "0x0030", null],
+      ["0x0031", "0x0031", [["ConstructDefeat"]]],
+      ["0x0030", "0x0031", [["ConstructDefeat"]]],
+      ["0x0031", "0x0030", [["DashOrb", "ConstructDefeat"]]]
+    ]
+  },
+  "0x18": {
+    "entrances": [
+      "0x0032", //Left
+      "0x0033" //Right
+    ],
+    "connections": [
+      ["0x0032", "0x0032", [["ConstructDefeat"]]],
+      ["0x0033", "0x0033", null],
+      ["0x0032", "0x0033", [["ConstructDefeat"]]],
+      ["0x0033", "0x0032", [["ConstructDefeat"]]],
+      ["0x0032", "DashOrb", [["ConstructDefeat"]]],
+      ["0x0033", "DashOrb", [["ConstructDefeat"]]],
+      ["0x0033", "ConstructDefeat", [["Sword"], ["DashOrb", "DashAttackOrb"]]]
+    ]
+  },
+  "0x19": {
+    "entrances": [
+      "0x0034", //Left
+      "0x0035" //Top
+    ],
+    "connections": [
+      ["0x0034", "0x0034", null],
+      ["0x0035", "0x0035", [["DashOrb"]]],
+      ["0x0034", "SaveButton", null],
+      ["0x0035", "SaveButton", null]
+    ],
+    "hasWarp": true
+  }
+}
