@@ -74,33 +74,16 @@ namespace GlyphsEntranceRando {
         }
 
         private static bool CheckConnection(Connection c) { //returns true if a new entrance should be added to toExplore
-
             if (c.obj != Objective.None) { //is this connection connecting to an objective?
-                bool collected = false;
-                foreach (CollectedObjective co in inventory) {
-                    collected = c.obj == co.obj && c.enter.roomId == co.rm;
-                    if (collected) break;
-                }
+                bool collected = inventory.Any(co => c.obj == co.obj && c.enter.roomId == co.rm);
                 if (collected) return false;     //this objective is already collected
                 if (TryCollectObjective(c)) {
-                    for (int i = 0; i < knownObjectives.Count; i++) {
-                        UncollectedObjective o = knownObjectives[i];
-                        if (o.obj == c.obj && o.rm == c.enter.roomId) {
-                            knownObjectives.RemoveAt(i);
-                            break;
-                        }
-                    }
+                    knownObjectives.RemoveAll(o => o.obj == c.obj && o.rm == c.enter.roomId);
                 } else {
-                    bool newConnectionMade = false;
-                    for (int i = 0; i < knownObjectives.Count; i++) {
-                        UncollectedObjective o = knownObjectives[i];
-                        if (o.obj == c.obj && o.rm == c.enter.roomId && !o.connections.Contains(c)) {
-                            o.connections.Add(c);
-                            newConnectionMade = true;
-                            break;
-                        }
-                    }
-                    if (!newConnectionMade) {
+                    UncollectedObjective o = knownObjectives.Find(o => o.obj == c.obj && o.rm == c.enter.roomId && !o.connections.Contains(c));
+                    if (o != null) {
+                        o.connections.Add(c);
+                    } else {
                         knownObjectives.Add(new UncollectedObjective {
                             obj = c.obj,
                             rm = c.enter.roomId,
@@ -108,29 +91,12 @@ namespace GlyphsEntranceRando {
                         });
                     }
                 }
+                return false;
             } else { //this connection must be connecting to another entrance
                 if (c.exit.couple != null) return false;    //this entrance is already coupled meaning we visited it already so ignore
-                bool reqMet = false;
-                if (c.requirements == null)
-                    reqMet = true;
-                else {
-                    foreach (List<Requirement> list in c.requirements) {
-                        reqMet = true;
-                        foreach (Requirement req in list) {
-                            if (!HasReq(req)) {
-                                reqMet = false;
-                                break;
-                            }
-                        }
-                        if (reqMet) {
-                            break;
-                        }
-                    }
-                }
-                if (reqMet)
-                    return true;
+                bool reqMet = c.requirements == null || c.requirements.Any(list => list.All(HasReq));
+                return reqMet;
             }
-            return false;
         }
 
         private static bool TryCollectObjective(Connection c) {
