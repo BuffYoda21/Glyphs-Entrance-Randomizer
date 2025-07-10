@@ -1,5 +1,4 @@
 using UnityEngine;
-using MelonLoader;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
