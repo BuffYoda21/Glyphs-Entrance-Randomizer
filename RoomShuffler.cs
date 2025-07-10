@@ -104,73 +104,51 @@ namespace GlyphsEntranceRando {
                 MelonLogger.Error($"entrance {c.exit.id} is an entrance not an objective.");
                 return false;
             }
-            bool collected = false;
-            if (c.requirements == null) {
-                collected = true;
-            } else {
-                foreach (List<Requirement> list in c.requirements) {
-                    collected = true;
-                    foreach (Requirement req in list) {
-                        if (!HasReq(req)) {
-                            collected = false;
+            bool collected = c.requirements == null || c.requirements.Any(list => list.All(HasReq));
+            if (collected) {
+                switch (c.obj) {
+                    case Objective.SilverShard: counters.silverShard++; break;
+                    case Objective.GoldShard: counters.goldShard++; break;
+                    case Objective.SmileToken: counters.smileToken++; break;
+                    case Objective.RuneCube: counters.runeCube++; break;
+                    case Objective.VoidGateShard: counters.voidGateShard++; break;
+                    case Objective.Sigil: counters.sigil++; break;
+                    case Objective.Glyphstone: counters.glyphstone++; break;
+                    case Objective.SerpentLock: counters.serpentLock++; break;
+                    case Objective.WallJump: counters.wallJump++; break;
+                    case Objective.Seeds: counters.seeds++; break;
+                    default: { //standard objective
+                            inventory.Add(new CollectedObjective {
+                                obj = c.obj,
+                                rm = c.enter.roomId,
+                            });
                             break;
                         }
-                    }
-                    if (collected) break;
-                }
-            }
-            if (collected) {
-                if ((int)c.obj >= 0x01 && (int)c.obj <= 0x12) { //this objective is a counter
-                    switch (c.obj) {
-                        case Objective.SilverShard: counters.silverShard++; break;
-                        case Objective.GoldShard: counters.goldShard++; break;
-                        case Objective.SmileToken: counters.smileToken++; break;
-                        case Objective.RuneCube: counters.runeCube++; break;
-                        case Objective.VoidGateShard: counters.voidGateShard++; break;
-                        case Objective.Sigil: counters.sigil++; break;
-                        case Objective.Glyphstone: counters.glyphstone++; break;
-                        case Objective.SerpentLock: counters.serpentLock++; break;
-                        case Objective.WallJump: counters.wallJump++; break;
-                        case Objective.Seeds: counters.seeds++; break;
-                    }
-                } else { //standard objective
-                    inventory.Add(new CollectedObjective {
-                        obj = c.obj,
-                        rm = c.enter.roomId,
-                    });
                 }
             }
             return collected;
         }
 
         private static bool HasReq(Requirement req) {
-            if ((int)req >= 0x01 && (int)req <= 0x12) { //this requirement is a counter
-                switch (req) {
-                    case Requirement.SilverShardx15: return counters.silverShard >= 15;
-                    case Requirement.GoldShardx1: return counters.goldShard >= 1;
-                    case Requirement.GoldShardx2: return counters.goldShard >= 2;
-                    case Requirement.GoldShardx3: return counters.goldShard >= 3;
-                    case Requirement.SmileTokenx2: return counters.smileToken >= 2;
-                    case Requirement.SmileTokenx4: return counters.smileToken >= 4;
-                    case Requirement.SmileTokenx6: return counters.smileToken >= 6;
-                    case Requirement.SmileTokenx8: return counters.smileToken >= 8;
-                    case Requirement.SmileTokenx10: return counters.smileToken >= 10;
-                    case Requirement.RuneCubex3: return counters.runeCube >= 3;
-                    case Requirement.VoidGateShardx7: return counters.voidGateShard >= 7;
-                    case Requirement.Sigilx3: return counters.sigil >= 3;
-                    case Requirement.Glyphstonex3: return counters.glyphstone >= 3;
-                    case Requirement.SerpentLockx4: return counters.serpentLock >= 4;
-                    case Requirement.WallJumpx1: return counters.wallJump >= 1;
-                    case Requirement.WallJumpx2: return counters.wallJump >= 2;
-                    case Requirement.Seedsx10: return counters.seeds >= 10;
-                }
-                return false;
-            } else { //standard requirement
-                foreach (CollectedObjective cobj in inventory) {
-                    if ((int)req == (int)cobj.obj)
-                        return true;
-                }
-                return false;
+            switch (req) {
+                case Requirement.SilverShardx15: return counters.silverShard >= 15;
+                case Requirement.GoldShardx1: return counters.goldShard >= 1;
+                case Requirement.GoldShardx2: return counters.goldShard >= 2;
+                case Requirement.GoldShardx3: return counters.goldShard >= 3;
+                case Requirement.SmileTokenx2: return counters.smileToken >= 2;
+                case Requirement.SmileTokenx4: return counters.smileToken >= 4;
+                case Requirement.SmileTokenx6: return counters.smileToken >= 6;
+                case Requirement.SmileTokenx8: return counters.smileToken >= 8;
+                case Requirement.SmileTokenx10: return counters.smileToken >= 10;
+                case Requirement.RuneCubex3: return counters.runeCube >= 3;
+                case Requirement.VoidGateShardx7: return counters.voidGateShard >= 7;
+                case Requirement.Sigilx3: return counters.sigil >= 3;
+                case Requirement.Glyphstonex3: return counters.glyphstone >= 3;
+                case Requirement.SerpentLockx4: return counters.serpentLock >= 4;
+                case Requirement.WallJumpx1: return counters.wallJump >= 1;
+                case Requirement.WallJumpx2: return counters.wallJump >= 2;
+                case Requirement.Seedsx10: return counters.seeds >= 10;
+                default: return inventory.Any(cobj => (int)cobj.obj == (int)req); //standard requirement
             }
         }
 
