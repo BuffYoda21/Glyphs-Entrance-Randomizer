@@ -239,718 +239,61 @@ namespace GlyphsEntranceRando {
             * Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
         */
         private static void CacheRooms() {
-            string json = ReadEmbeddedData("data.entrances.jsonc");
-            var res = JsonConvert.DeserializeObject<Dictionary<string, List<String>>>(json);
-            MelonLogger.Msg($"Loaded {res.Count} entrances");
-            foreach (var (idStr, roomAndType) in res) {
-                int id = parseHex(idStr);
-                byte roomId = (byte)parseHex(roomAndType[0]);
-                if (!Enum.TryParse(roomAndType[1], out EntranceType entranceType)) throw new Exception($"Invalid entrance type {roomAndType[1]}");
-                allEntrances[id] = new Entrance(id, roomId, entranceType);
-            }
-            allRooms = new List<Room>
-            {
-                new Room()
-                {
-                    id = 0x00,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0000], //bottom
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0000], allEntrances[0x0000], null),
-                        new Connection(allEntrances[0x0000], Objective.SilverShard, null)
-                    },
-                },
-                new Room()
-                {
-                    id = 0x01,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0001], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0001], allEntrances[0x0001], null),
-                    },
-                    isStartRoom = true,
-                },
-                new Room()
-                {
-                    id = 0x02,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0002], //left
-                        allEntrances[0x0003], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0002], allEntrances[0x0002], null),
-                        new Connection(allEntrances[0x0003], allEntrances[0x0003], null),
-                        new Connection(allEntrances[0x0002], allEntrances[0x0003], null),
-                        new Connection(allEntrances[0x0003], allEntrances[0x0002], null),
-                    },
-                },
-                new Room()
-                {
-                    id = 0x03,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0004], //left
-                        allEntrances[0x0005], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0004], allEntrances[0x0004], null),
-                        new Connection(allEntrances[0x0005], allEntrances[0x0005], null),
-                        new Connection(allEntrances[0x0004], allEntrances[0x0005], null),
-                        new Connection(allEntrances[0x0005], allEntrances[0x0004], null),
-                        new Connection(allEntrances[0x0004], Objective.SaveButton, null),
-                        new Connection(allEntrances[0x0005], Objective.SaveButton, null),
-                    },
-                    hasWarp = true,
-                },
-                new Room()
-                {
-                    id = 0x04,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0006], //left
-                        allEntrances[0x0007], //right
-                        allEntrances[0x0008], //bottom
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0006], allEntrances[0x0006], null),
-                        new Connection(allEntrances[0x0007], allEntrances[0x0007], null),
-                        new Connection(allEntrances[0x0008], allEntrances[0x0008], null),
-                        new Connection(allEntrances[0x0006], allEntrances[0x0007], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0007], allEntrances[0x0006], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0006], allEntrances[0x0008], null),
-                        new Connection(allEntrances[0x0008], allEntrances[0x0006], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.VerticalMomentum }
-                        }),
-                        new Connection(allEntrances[0x0007], allEntrances[0x0008], null),
-                        new Connection(allEntrances[0x0008], allEntrances[0x0007], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.VerticalMomentum }
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x05,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0009], //left
-                        allEntrances[0x000A], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0009], allEntrances[0x0009], null),
-                        new Connection(allEntrances[0x000A], allEntrances[0x000A], null),
-                        new Connection(allEntrances[0x0009], allEntrances[0x000A], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb },
-                        }),
-                        new Connection(allEntrances[0x000A], allEntrances[0x0009], null),
-                    },
-                },
-                new Room()
-                {
-                    id = 0x06,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x000B], //left
-                        allEntrances[0x000C], //right
-                        allEntrances[0x000D], //top
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x000B], allEntrances[0x000B], null),
-                        new Connection(allEntrances[0x000C], allEntrances[0x000C], null),
-                        new Connection(allEntrances[0x000D], allEntrances[0x000D], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x000B], allEntrances[0x000C], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x000C], allEntrances[0x000B], null),
-                        new Connection(allEntrances[0x000B], allEntrances[0x000D], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
-                        }),
-                        new Connection(allEntrances[0x000D], allEntrances[0x000B], null),
-                        new Connection(allEntrances[0x000C], allEntrances[0x000D], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
-                        }),
-                        new Connection(allEntrances[0x000D], allEntrances[0x000C], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                    },
-                },
-                new Room()
-                {
-                    id = 0x07,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x000E], //left
-                        allEntrances[0x000F], //right
-                        allEntrances[0x0010], //bottom
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x000E], allEntrances[0x000E], null),
-                        new Connection(allEntrances[0x000F], allEntrances[0x000F], null),
-                        new Connection(allEntrances[0x0010], allEntrances[0x0010], null),
-                        new Connection(allEntrances[0x000E], allEntrances[0x000F], null),
-                        new Connection(allEntrances[0x000F], allEntrances[0x000E], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x000E], allEntrances[0x0010], null),
-                        new Connection(allEntrances[0x0010], allEntrances[0x000E], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.VerticalMomentum }
-                        }),
-                        new Connection(allEntrances[0x000F], allEntrances[0x0010], null),
-                        new Connection(allEntrances[0x0010], allEntrances[0x000F], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.VerticalMomentum }
-                        }),
-                    },
-                },
-                new Room()
-                {
-                    id = 0x08,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0011], //left
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0011], allEntrances[0x0011], null),
-                        new Connection(allEntrances[0x0011], Objective.SaveButton, null),
-                    },
-                    hasWarp = true,
-                },
-                new Room()
-                {
-                    id = 0x09,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0012], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0012], allEntrances[0x0012], null),
-                        new Connection(allEntrances[0x0012], Objective.SilverShard, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                    },
-                },
-                new Room()
-                {
-                    id = 0x0A,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0013], //left to shard room
-                        allEntrances[0x0014], //left to smile token room
-                        allEntrances[0x0015], //right to map room
-                        allEntrances[0x0016], //right to flower passage
-                        allEntrances[0x0017], //right towards construct
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0013], allEntrances[0x0013], null),
-                        new Connection(allEntrances[0x0014], allEntrances[0x0014], null),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0015], null),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0016], null),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0017], null),
-                        new Connection(allEntrances[0x0013], allEntrances[0x0014], null),
-                        new Connection(allEntrances[0x0014], allEntrances[0x0013], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0013], allEntrances[0x0015], null),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0013], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0013], allEntrances[0x0016], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0013], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0013], allEntrances[0x0017], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
-                        }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0013], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0014], allEntrances[0x0015], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0014], null),
-                        new Connection(allEntrances[0x0014], allEntrances[0x0016], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0014], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0014], allEntrances[0x0017], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
-                        }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0014], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0016], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0015], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0015], allEntrances[0x0017], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
-                        }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0015], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0016], allEntrances[0x0017], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle, Requirement.WallJumpx1 }
-                        }),
-                        new Connection(allEntrances[0x0017], allEntrances[0x0016], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0013], Objective.SaveButton, null),
-                        new Connection(allEntrances[0x0014], Objective.SaveButton, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0015], Objective.SaveButton, null),
-                        new Connection(allEntrances[0x0016], Objective.SaveButton, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0017], Objective.SaveButton, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                    },
-                    hasWarp = true,
-                },
-                new Room()
-                {
-                    id = 0x0B,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0018], //left
-                        allEntrances[0x0019], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0018], allEntrances[0x0018], null),
-                        new Connection(allEntrances[0x0019], allEntrances[0x0019], null),
-                        new Connection(allEntrances[0x0018], allEntrances[0x0018], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.Map }
-                        }),
-                        new Connection(allEntrances[0x0018], Objective.Map, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0019], Objective.Map, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.Map }
-                        }),
-                    },
-                },
-                new Room() {
-                    id = 0x0C,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x001A], //left
-                        allEntrances[0x001B], //right
-                        allEntrances[0x001C], //bottom
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x001A], allEntrances[0x001A], null),
-                        new Connection(allEntrances[0x001B], allEntrances[0x001B], null),
-                        new Connection(allEntrances[0x001C], allEntrances[0x001C], null),
-                        new Connection(allEntrances[0x001A], allEntrances[0x001B], null),
-                        new Connection(allEntrances[0x001B], allEntrances[0x001A], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
-                        }),
-                        new Connection(allEntrances[0x001A], allEntrances[0x001C], null),
-                        new Connection(allEntrances[0x001C], allEntrances[0x001A], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 }
-                        }),
-                        new Connection(allEntrances[0x001B], allEntrances[0x001C], null),
-                        new Connection(allEntrances[0x001C], allEntrances[0x001B], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb },
-                            new List<Requirement> { Requirement.VerticalMomentum },
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x0D,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x001D], //left
-                        allEntrances[0x001E], //right
-                        allEntrances[0x001F], //top
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x001D], allEntrances[0x001D], null),
-                        new Connection(allEntrances[0x001E], allEntrances[0x001E], null),
-                        new Connection(allEntrances[0x001F], allEntrances[0x001F], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 },
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x001D], allEntrances[0x001E], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 },
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x001E], allEntrances[0x001D], null),
-                        new Connection(allEntrances[0x001D], allEntrances[0x001F], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.WallJumpx1 },
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x001F], allEntrances[0x001D], null),
-                        new Connection(allEntrances[0x001E], allEntrances[0x001F], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x001F], allEntrances[0x001E], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x001D], Objective.VerticalMomentum, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x001E], Objective.VerticalMomentum, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x001F], Objective.VerticalMomentum, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.FlowerPuzzle }
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x0E,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0020], //left
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0020], allEntrances[0x0020], null),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x0F,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0021], //top
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0021], Objective.SilverShard, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x10,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0022], //right
-                        allEntrances[0x0023], //bottom
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0023], allEntrances[0x0023], null),
-                        new Connection(allEntrances[0x0022], allEntrances[0x0023], null),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x11,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0024], //left
-                        allEntrances[0x0025], //top
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0024], allEntrances[0x0024], null),
-                        new Connection(allEntrances[0x0025], allEntrances[0x0025], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0024], allEntrances[0x0025], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0025], allEntrances[0x0024], null),
-                    }
-                },
-                new Room() {
-                    id = 0x12,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0026], //bottom
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0026], allEntrances[0x0026], null),
-                        new Connection(allEntrances[0x0026], Objective.RuneCube, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x13,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0027], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0027], allEntrances[0x0027], null),
-                        new Connection(allEntrances[0x0027], Objective.SmileToken, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x14,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0028], //left
-                        allEntrances[0x0029], //right
-                        allEntrances[0x002A], //top
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0028], allEntrances[0x0028], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0029], allEntrances[0x0029], null),
-                        new Connection(allEntrances[0x0028], allEntrances[0x0029], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x0029], allEntrances[0x0028], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x002A], allEntrances[0x0028], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.FlowerPuzzle }
-                        }),
-                        new Connection(allEntrances[0x002A], allEntrances[0x0029], null),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x15,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x002B], //left
-                        allEntrances[0x002C], //right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x002B], allEntrances[0x002B], null),
-                        new Connection(allEntrances[0x002C], allEntrances[0x002C], null),
-                        new Connection(allEntrances[0x002B], allEntrances[0x002C], null),
-                        new Connection(allEntrances[0x002C], allEntrances[0x002B], null),
-                        new Connection(allEntrances[0x002B], Objective.Sword, null),
-                        new Connection(allEntrances[0x002C], Objective.Sword, null),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x16,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x002D], //left
-                        allEntrances[0x002E], //top
-                        allEntrances[0x002F], //bottom
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x002D], allEntrances[0x002D], null),
-                        new Connection(allEntrances[0x002E], allEntrances[0x002E], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.VerticalMomentum }
-                        }),
-                        new Connection(allEntrances[0x002F], allEntrances[0x002F], null),
-                        new Connection(allEntrances[0x002D], allEntrances[0x002E], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.VerticalMomentum }
-                        }),
-                        new Connection(allEntrances[0x002E], allEntrances[0x002D], null),
-                        new Connection(allEntrances[0x002D], allEntrances[0x002F], null),
-                        new Connection(allEntrances[0x002F], allEntrances[0x002D], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.VerticalMomentum },
-                            new List<Requirement> { Requirement.DashOrb },
-                        }),
-                        new Connection(allEntrances[0x002E], allEntrances[0x002F], null),
-                        new Connection(allEntrances[0x002F], allEntrances[0x002E], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.VerticalMomentum }
-                        }),
-                        new Connection(allEntrances[0x002F], Objective.VerticalMomentum, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
-                        }),
-                        new Connection(allEntrances[0x002E], Objective.VerticalMomentum, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
-                        }),
-                        new Connection(allEntrances[0x002F], Objective.VerticalMomentum, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.Grapple }
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x17,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0030], //Left
-                        allEntrances[0x0031], //Right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0030], allEntrances[0x0030], null),
-                        new Connection(allEntrances[0x0031], allEntrances[0x0031], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.ConstructDefeat }
-                        }),
-                        new Connection(allEntrances[0x0030], allEntrances[0x0031], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.ConstructDefeat }
-                        }),
-                        new Connection(allEntrances[0x0031], allEntrances[0x0030], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb, Requirement.ConstructDefeat }
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x18,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0032], //Left
-                        allEntrances[0x0033], //Right
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0032], allEntrances[0x0032], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.ConstructDefeat }
-                        }),
-                        new Connection(allEntrances[0x0033], allEntrances[0x0033], null),
-                        new Connection(allEntrances[0x0032], allEntrances[0x0033], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.ConstructDefeat }
-                        }),
-                        new Connection(allEntrances[0x0033], allEntrances[0x0032], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.ConstructDefeat }
-                        }),
-                        new Connection(allEntrances[0x0032], Objective.DashOrb, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.ConstructDefeat }
-                        }),
-                        new Connection(allEntrances[0x0033], Objective.DashOrb, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.ConstructDefeat }
-                        }),
-                        new Connection(allEntrances[0x0033], Objective.ConstructDefeat, new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.Sword },
-                            new List<Requirement> { Requirement.DashOrb, Requirement.DashAttackOrb },
-                        }),
-                    }
-                },
-                new Room()
-                {
-                    id = 0x19,
-                    entrances = new List<Entrance>
-                    {
-                        allEntrances[0x0034], //Left
-                        allEntrances[0x0035], //Top
-                    },
-                    connections = new List<Connection>
-                    {
-                        new Connection(allEntrances[0x0034], allEntrances[0x0034], null),
-                        new Connection(allEntrances[0x0035], allEntrances[0x0035], new List<List<Requirement>>
-                        {
-                            new List<Requirement> { Requirement.DashOrb }
-                        }),
-                        new Connection(allEntrances[0x0034], Objective.SaveButton, null),
-                        new Connection(allEntrances[0x0035], Objective.SaveButton, null),
-                    },
-                    hasWarp = true,
+            { // read entrance data
+                string json = ReadEmbeddedData("data.entrances.jsonc");
+                var res = JsonConvert.DeserializeObject<Dictionary<string, List<String>>>(json);
+                MelonLogger.Msg($"Loaded {res.Count} entrances");
+                foreach (var (idStr, roomAndType) in res) {
+                    int id = parseHex(idStr);
+                    byte roomId = (byte)parseHex(roomAndType[0]);
+                    if (!Enum.TryParse(roomAndType[1], out EntranceType entranceType)) throw new Exception($"Invalid entrance type {roomAndType[1]}");
+                    allEntrances[id] = new Entrance(id, roomId, entranceType);
                 }
-            };
+            }
+            { // Read room data
+                string json = ReadEmbeddedData("data.rooms.jsonc");
+                var res = JsonConvert.DeserializeObject<Dictionary<string, SerializedRoom>>(json);
+                MelonLogger.Msg($"Loaded {res.Count} rooms");
+                allRooms = new List<Room>();
+                foreach (var (id, room) in res) {
+                    List<Connection> connections = new List<Connection>();
+                    foreach (var connection in room.connections) {
+                        string entranceId = connection[0].ToString();
+                        string exitOrObjective = connection[1].ToString();
+
+                        Entrance entrance = allEntrances[parseHex(entranceId)];
+                        Entrance exit = null; ;
+                        Objective objective = Objective.None;
+                        if (!Enum.TryParse(exitOrObjective, out objective)) {
+                            exit = allEntrances[parseHex(exitOrObjective)];
+                        }
+                        List<List<Requirement>> requirements = null;
+                        if (connection[2] != null) {
+                            requirements = new List<List<Requirement>>();
+                            foreach (var arr in (Newtonsoft.Json.Linq.JArray)connection[2]) {
+                                List<Requirement> reqs = new List<Requirement>();
+                                foreach (var reqStr in (Newtonsoft.Json.Linq.JArray)arr) {
+                                    if (!Enum.TryParse(reqStr.ToString(), out Requirement requirement)) throw new Exception($"Invalid requirement {reqStr}");
+                                    reqs.Add(requirement);
+                                }
+                                requirements.Add(reqs);
+                            }
+                        }
+                        connections.Add(new Connection(entrance, exit, requirements) {
+                            obj = objective,
+                        });
+                    }
+                    allRooms.Add(new Room {
+                        id = (byte)parseHex(id),
+                        canMap = room.canMap,
+                        bossRoom = room.bossRoom,
+                        hasWarp = room.hasWarp,
+                        isStartRoom = room.isStartRoom,
+                        entrances = room.entrances.Select(e => allEntrances[parseHex(e)]).ToList(), // fetch the entrances by id
+                        connections = connections,
+                    });
+                }
+            }
         }
 
         private static void SortEntrances() {
@@ -1004,7 +347,26 @@ namespace GlyphsEntranceRando {
             public int entrance { get; set; }
             public int couple { get; set; }
         }
+        public class SerializedRoom {
+            public List<String> entrances { get; set; } // List of hexadecimal entrance ids
+            // This is [string, string, List<List< string(Requirement) >>][]
+            public List<List<object>> connections { get; set; }
+            public byte id { get; set; } = 0x00;
+            public bool canMap { get; set; } = true;
+            public bool bossRoom { get; set; } = false;
+            public bool hasWarp { get; set; } = false;
+            public bool isStartRoom { get; set; } = false;
+        }
 
+        // "0x00": {
+        //   "entrances": [
+        //     "0x0000" //bottom
+        //   ],
+        //   "connections": [
+        //     ["0x0000", "0x0000", null],
+        //     ["0x0000", "SilverShard", null]
+        //   ]
+        // },
         public class InventoryCounters {
             public int silverShard = 0;
             public int goldShard = 0;
