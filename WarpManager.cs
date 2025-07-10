@@ -9,12 +9,10 @@ namespace GlyphsEntranceRando {
         [HarmonyPatch(typeof(SceneManager), "Internal_SceneLoaded")]
         [HarmonyPostfix]
         public static void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
-            if (scene.handle == lastSceneHandle)
-                return;
+            if (scene.handle == lastSceneHandle) return;
             lastSceneHandle = scene.handle;
-            if (scene.name != "Game") return;
+            if (scene.name != "Game" || entrancePairs == null) return;
             warpParent = new GameObject("Warps");
-            if (entrancePairs == null) return;
 
             foreach (RoomShuffler.SerializedEntrancePair pair in entrancePairs) {
                 GameObject warp = new GameObject($"0x{pair.entrance:X4}");
