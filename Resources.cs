@@ -45,12 +45,12 @@ namespace GlyphsEntranceRando {
             private static void Load() {
                 allEntrances = new Dictionary<int, Entrance>();
                 string json = ReadEmbeddedData("data.entrances.jsonc");
-                var res = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(json);
+                var res = JsonConvert.DeserializeObject<Dictionary<string, SerializedEntrance>>(json);
                 MelonLogger.Msg($"Loaded {res.Count} entrances");
-                foreach (var (idStr, roomAndType) in res) {
+                foreach (var (idStr, serializedEntrance) in res) {
                     int id = parseHex(idStr);
-                    byte roomId = (byte)parseHex(roomAndType[0]);
-                    if (!Enum.TryParse(roomAndType[1], out EntranceType entranceType)) throw new Exception($"Invalid entrance type {roomAndType[1]}");
+                    byte roomId = (byte)parseHex(serializedEntrance.room);
+                    if (!Enum.TryParse(serializedEntrance.type, out EntranceType entranceType)) throw new Exception($"Invalid entrance type {serializedEntrance.type}");
                     allEntrances[id] = new Entrance(id, roomId, entranceType);
                 }
             }
@@ -125,6 +125,10 @@ namespace GlyphsEntranceRando {
 public class SerializedEntrancePair {
     public int entrance { get; set; }
     public int couple { get; set; }
+}
+public class SerializedEntrance {
+    public string room { get; set; }
+    public string type { get; set; }
 }
 public class SerializedRoom {
     public List<String> entrances { get; set; } // List of hexadecimal entrance ids
