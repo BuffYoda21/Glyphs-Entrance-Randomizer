@@ -15,7 +15,7 @@ namespace GlyphsEntranceRando {
             if (scene.name != "Game" || entrancePairs == null) return;
             warpParent = new GameObject("Warps");
 
-            foreach (RoomShuffler.SerializedEntrancePair pair in entrancePairs) {
+            foreach (SerializedEntrancePair pair in entrancePairs) {
                 GameObject warp = new GameObject($"0x{pair.entrance:X4}");
                 warp.transform.SetParent(warpParent.transform);
                 PlaceWarp(warp, pair);
@@ -27,7 +27,7 @@ namespace GlyphsEntranceRando {
         }
         #pragma warning restore IDE0060 // Restore unused parameter warning
 
-        private static void PlaceWarp(GameObject warp, RoomShuffler.SerializedEntrancePair pair) {
+        private static void PlaceWarp(GameObject warp, SerializedEntrancePair pair) {
             warp.AddComponent<DynamicTp>();
             DynamicTp tp = warp.GetComponent<DynamicTp>();
             tp.id = pair.entrance;
@@ -156,7 +156,7 @@ namespace GlyphsEntranceRando {
 
         public static int lastSceneHandle = -1;
         public static GameObject warpParent;
-        public static List<RoomShuffler.SerializedEntrancePair> entrancePairs;
+        public static List<SerializedEntrancePair> entrancePairs;
         public static List<GameObject> warps = new List<GameObject>();
     }
 }

@@ -53,12 +53,10 @@ namespace GlyphsEntranceRando {
                 MelonLogger.Error("Randomization Failed. Outputting partial results.");
                 MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
             }
-            List<SerializedEntrancePair> pairs = allEntrances
+            Resources.ResultsJSON.Contents = allEntrances
               .Where(e => e.Value.couple != null)
               .Select(e => new SerializedEntrancePair { entrance = e.Key, couple = e.Value.couple.id })
               .ToList();
-            string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
-            File.WriteAllText(Main.JSON_SAVE_PATH, json);
             return success;
         }
 
@@ -343,10 +341,6 @@ namespace GlyphsEntranceRando {
             public byte rm;
         }
 
-        public class SerializedEntrancePair {
-            public int entrance { get; set; }
-            public int couple { get; set; }
-        }
         public class SerializedRoom {
             public List<String> entrances { get; set; } // List of hexadecimal entrance ids
             // This is [string, string, List<List< string(Requirement) >>][]
