@@ -191,21 +191,14 @@ namespace GlyphsEntranceRando {
 
         public static bool PairRemainingEntrances() {
             VerifyEntrancePairings();
+            // PairEntrance calls VerifyEntrancePairings, which will remove paired entrances from the lists, so the while loops will exit
             while (rightEntrances.Count > 0) {
-                if (rightEntrances[0].couple != null) {
-                    rightEntrances.RemoveAt(0);
-                    continue;
-                }
                 if (PairEntrance(rightEntrances[0]) == null) {
                     MelonLogger.Error($"Failed to pair entrance {rightEntrances[0].id} at the end of randomization");
                     return false;
                 }
             }
             while (topEntrances.Count > 0) {
-                if (topEntrances[0].couple != null) {
-                    topEntrances.RemoveAt(0);
-                    continue;
-                }
                 if (PairEntrance(topEntrances[0]) == null) {
                     MelonLogger.Error($"Failed to pair entrance {topEntrances[0].id} at the end of randomization");
                     return false;
@@ -220,42 +213,10 @@ namespace GlyphsEntranceRando {
         }
 
         private static void VerifyEntrancePairings() {
-            int i = 0;
-            while (true) {
-                if (i >= rightEntrances.Count)
-                    break;
-                if (rightEntrances[i].couple != null)
-                    rightEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
-            i = 0;
-            while (true) {
-                if (i >= leftEntrances.Count)
-                    break;
-                if (leftEntrances[i].couple != null)
-                    leftEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
-            i = 0;
-            while (true) {
-                if (i >= topEntrances.Count)
-                    break;
-                if (topEntrances[i].couple != null)
-                    topEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
-            i = 0;
-            while (true) {
-                if (i >= bottomEntrances.Count)
-                    break;
-                if (bottomEntrances[i].couple != null)
-                    bottomEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
+            rightEntrances.RemoveAll(e => e.couple != null);
+            leftEntrances.RemoveAll(e => e.couple != null);
+            topEntrances.RemoveAll(e => e.couple != null);
+            bottomEntrances.RemoveAll(e => e.couple != null);
         }
 
         /*
