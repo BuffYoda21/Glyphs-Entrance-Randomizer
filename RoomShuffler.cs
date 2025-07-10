@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -220,6 +221,17 @@ namespace GlyphsEntranceRando {
             bottomEntrances.RemoveAll(e => e.couple != null);
         }
 
+        // Reads an embeded readable file from the assembly, note: folder.file.ext
+        private static string ReadEmbeddedData(string path) {
+            var name = Assembly.GetExecutingAssembly().GetName().Name;
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"{name}.{path}")!;
+            using var reader = new System.IO.StreamReader(stream, System.Text.Encoding.UTF8);
+            string json = reader.ReadToEnd();
+            return json;
+        }
+        private static int parseHex(string s) { // Parses "0x1234" to 4660
+            return int.Parse(s.Substring(2), System.Globalization.NumberStyles.HexNumber);
+        }
         /*
             * This method is responsible for defining the rooms and their connections in the game.
             * It initializes a list of rooms, each with its own unique ID, entrances, and connections.
@@ -227,63 +239,14 @@ namespace GlyphsEntranceRando {
             * Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
         */
         private static void CacheRooms() {
-            foreach (Entrance e in new List<Entrance> {
-                new Entrance(0x0000, 0x00, EntranceType.Bottom),
-                new Entrance(0x0001, 0x01, EntranceType.Right),
-                new Entrance(0x0002, 0x02, EntranceType.Left),
-                new Entrance(0x0003, 0x02, EntranceType.Right),
-                new Entrance(0x0004, 0x03, EntranceType.Left),
-                new Entrance(0x0005, 0x03, EntranceType.Right),
-                new Entrance(0x0006, 0x04, EntranceType.Left),
-                new Entrance(0x0007, 0x04, EntranceType.Right),
-                new Entrance(0x0008, 0x04, EntranceType.Bottom),
-                new Entrance(0x0009, 0x05, EntranceType.Left),
-                new Entrance(0x000A, 0x05, EntranceType.Right),
-                new Entrance(0x000B, 0x06, EntranceType.Left),
-                new Entrance(0x000C, 0x06, EntranceType.Right),
-                new Entrance(0x000D, 0x06, EntranceType.Top),
-                new Entrance(0x000E, 0x07, EntranceType.Left),
-                new Entrance(0x000F, 0x07, EntranceType.Right),
-                new Entrance(0x0010, 0x07, EntranceType.Bottom),
-                new Entrance(0x0011, 0x08, EntranceType.Left),
-                new Entrance(0x0012, 0x09, EntranceType.Right),
-                new Entrance(0x0013, 0x0A, EntranceType.Left), // to shard room
-                new Entrance(0x0014, 0x0A, EntranceType.Left), // to smile token room
-                new Entrance(0x0015, 0x0A, EntranceType.Right), // to map room
-                new Entrance(0x0016, 0x0A, EntranceType.Right), // flower passage
-                new Entrance(0x0017, 0x0A, EntranceType.Right), // towards construct
-                new Entrance(0x0018, 0x0B, EntranceType.Left),
-                new Entrance(0x0019, 0x0B, EntranceType.Right),
-                new Entrance(0x001A, 0x0C, EntranceType.Left),
-                new Entrance(0x001B, 0x0C, EntranceType.Right),
-                new Entrance(0x001C, 0x0C, EntranceType.Bottom),
-                new Entrance(0x001D, 0x0D, EntranceType.Left),
-                new Entrance(0x001E, 0x0D, EntranceType.Right),
-                new Entrance(0x001F, 0x0D, EntranceType.Top),
-                new Entrance(0x0020, 0x0E, EntranceType.Left),
-                new Entrance(0x0021, 0x0F, EntranceType.Top),
-                new Entrance(0x0022, 0x10, EntranceType.Right),
-                new Entrance(0x0023, 0x10, EntranceType.Bottom),
-                new Entrance(0x0024, 0x11, EntranceType.Left),
-                new Entrance(0x0025, 0x11, EntranceType.Top),
-                new Entrance(0x0026, 0x12, EntranceType.Bottom),
-                new Entrance(0x0027, 0x13, EntranceType.Right),
-                new Entrance(0x0028, 0x14, EntranceType.Left),
-                new Entrance(0x0029, 0x14, EntranceType.Right),
-                new Entrance(0x002A, 0x14, EntranceType.Top),
-                new Entrance(0x002B, 0x15, EntranceType.Left),
-                new Entrance(0x002C, 0x15, EntranceType.Right),
-                new Entrance(0x002D, 0x16, EntranceType.Left),
-                new Entrance(0x002E, 0x16, EntranceType.Top),
-                new Entrance(0x002F, 0x16, EntranceType.Bottom),
-                new Entrance(0x0030, 0x17, EntranceType.Left),
-                new Entrance(0x0031, 0x17, EntranceType.Right),
-                new Entrance(0x0032, 0x18, EntranceType.Left),
-                new Entrance(0x0033, 0x18, EntranceType.Right),
-                new Entrance(0x0034, 0x19, EntranceType.Left),
-                new Entrance(0x0035, 0x19, EntranceType.Top),
-            }) {
-                allEntrances[e.id] = e;
+            string json = ReadEmbeddedData("data.entrances.jsonc");
+            var res = JsonConvert.DeserializeObject<Dictionary<string, List<String>>>(json);
+            MelonLogger.Msg($"Loaded {res.Count} entrances");
+            foreach (var (idStr, roomAndType) in res) {
+                int id = parseHex(idStr);
+                byte roomId = (byte)parseHex(roomAndType[0]);
+                if (!Enum.TryParse(roomAndType[1], out EntranceType entranceType)) throw new Exception($"Invalid entrance type {roomAndType[1]}");
+                allEntrances[id] = new Entrance(id, roomId, entranceType);
             }
             allRooms = new List<Room>
             {
