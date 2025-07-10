@@ -40,8 +40,9 @@ namespace GlyphsEntranceRando {
                 bool endVisited = allEntrances[ENDING_ROOM].couple != null;
                 goal = endVisited && HasReq(Requirement.ConstructDefeat);
             }
-            bool incomplete = goal && !PairRemainingEntrances();
+            bool success = goal;
             if (goal) {
+                success = PairRemainingEntrances();
                 int unpairedCount = allEntrances.Count(e => e.Value.couple == null);
                 if (unpairedCount > 0)
                     MelonLogger.Error($"{unpairedCount} entrances are unpaired!");
@@ -57,7 +58,7 @@ namespace GlyphsEntranceRando {
               .ToList();
             string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
             File.WriteAllText(Main.JSON_SAVE_PATH, json);
-            return !incomplete;
+            return success;
         }
 
         private static void ResetState() {
