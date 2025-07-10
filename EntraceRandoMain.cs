@@ -85,13 +85,13 @@ namespace GlyphsEntranceRando {
     }
 
     public class Entrance {
-        public Entrance(ushort id, byte roomId, EntranceType type) {
+        public Entrance(int id, byte roomId, EntranceType type) {
             this.id = id;
             this.roomId = roomId;
             this.type = type;
         }
 
-        public ushort id = 0x0000;
+        public int id = 0x0000;
         public byte roomId = 0x00;
         public EntranceType type = EntranceType.Right;
         public Entrance couple = null;

@@ -19,8 +19,8 @@ namespace GlyphsEntranceRando {
         }
 
         public Transform targetExit;
-        public ushort id;
-        public ushort targetId;
+        public int id;
+        public int targetId;
         public EntranceType type;
     }
 }
