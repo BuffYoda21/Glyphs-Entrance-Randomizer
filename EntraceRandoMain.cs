@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Il2CppInterop.Runtime.Injection;
 using Il2CppSystem.IO;
 using MelonLoader;
+using MelonLoader.Utils;
 using Newtonsoft.Json;
 
 [assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.4.0", "BuffYoda21")]
@@ -18,20 +19,18 @@ namespace GlyphsEntranceRando {
         }
 
         public void LoadRandomizedEntrances() {
-            string userDataDir = MelonLoader.Utils.MelonEnvironment.UserDataDirectory;
-            string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
-            if (File.Exists(savePath)) {
+            if (File.Exists(JSON_SAVE_PATH)) {
                 try {
-                    string json = File.ReadAllText(savePath);
+                    string json = File.ReadAllText(JSON_SAVE_PATH);
                     WarpManager.entrancePairs = JsonConvert.DeserializeObject<List<RoomShuffler.SerializedEntrancePair>>(json);
                     if (WarpManager.entrancePairs?.Count == 54) {
-                        MelonLogger.Msg("Loaded existing RandomizationResults.json.");
+                        MelonLogger.Msg($"Loaded existing {JSON_SAVE_NAME}.");
                         return; // stop here if we've loaded the entrances
                     } else {
-                        MelonLogger.Warning("RandomizationResults.json is incomplete or invalid, generating new seed.");
+                        MelonLogger.Warning($"{JSON_SAVE_NAME} is incomplete or invalid, generating new seed.");
                     }
                 } catch {
-                    MelonLogger.Error("Failed to load RandomizationResults.json, generating new seed.");
+                    MelonLogger.Error($"Failed to load {JSON_SAVE_NAME}, generating new seed.");
                 }
             }
             for (int i = 0; i > -1; i++) {
@@ -44,7 +43,8 @@ namespace GlyphsEntranceRando {
             }
         }
 
-
+        public static string JSON_SAVE_NAME = "RandomizationResults.json";
+        public static string JSON_SAVE_PATH = Path.Combine(MelonEnvironment.UserDataDirectory, JSON_SAVE_NAME);
     }
 
     public class Room {

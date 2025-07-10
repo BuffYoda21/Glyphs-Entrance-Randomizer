@@ -56,9 +56,7 @@ namespace GlyphsEntranceRando {
               .Select(e => new SerializedEntrancePair { entrance = e.Key, couple = e.Value.couple.id })
               .ToList();
             string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
-            string userDataDir = MelonEnvironment.UserDataDirectory;
-            string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
-            File.WriteAllText(savePath, json);
+            File.WriteAllText(Main.JSON_SAVE_PATH, json);
             return !incomplete;
         }
 
