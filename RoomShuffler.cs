@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Il2CppSystem.IO;
 using MelonLoader;
 using MelonLoader.Utils;
@@ -12,76 +13,53 @@ namespace GlyphsEntranceRando {
             HashSet<Connection> insufficentRequirements = new HashSet<Connection>();
             CacheRooms();
             SortEntrances();
-            bool endVisited = false;
             bool goal = false;
             toExplore.Enqueue(allEntrances[STARTING_ROOM]);
-            while (toExplore.Count > 0 && !goal) {
-                MelonLogger.Msg($"{toExplore.Count} entrances to explore");
-                currentEntrance = toExplore.Dequeue();
+            while (!goal && toExplore.TryDequeue(out Entrance currentEntrance)) {
+                MelonLogger.Msg($"{toExplore.Count + 1} entrances to explore");
                 if (currentEntrance.couple == null) {
-                    PairEntrance(currentEntrance);
-                    if (currentEntrance == null) {
+                    if (PairEntrance(currentEntrance) == null) {
                         MelonLogger.Error($"Failed to pair entrance {currentEntrance.id}");
                         return false;
                     }
                 }
-                List<Connection> shuffledConnections = new List<Connection>(allRooms[currentEntrance.couple.roomId].connections);
+                List<Connection> shuffledConnections = new List<Connection>(allRooms[currentEntrance.couple.roomId].connections)
+                  .Where(c => c.enter.id == currentEntrance.couple.id) // Only connections that enter through the current entrance
+                  .ToList();
                 ShuffleList(shuffledConnections);
                 foreach (Connection c in shuffledConnections) {
-                    if (c.enter.id != currentEntrance.couple.id) continue;   //we didnt enter through this entrance so ignore
                     if (CheckConnection(c))
                         toExplore.Enqueue(c.exit);
                     else if (c.exit != null)
                         insufficentRequirements.Add(c);
                 }
-                foreach (Connection c in insufficentRequirements) {
-                    if (CheckConnection(c))
-                        toExplore.Enqueue(c.exit);
+                foreach (Connection c in insufficentRequirements.Where(CheckConnection)) {
+                    toExplore.Enqueue(c.exit);
                 }
-                if (allEntrances[ENDING_ROOM].couple != null)
-                    endVisited = true;
-                if (endVisited && HasReq(Requirement.ConstructDefeat))
-                    goal = true;
+
+                bool endVisited = allEntrances[ENDING_ROOM].couple != null;
+                goal = endVisited && HasReq(Requirement.ConstructDefeat);
             }
+            bool incomplete = goal && !PairRemainingEntrances();
             if (goal) {
-                bool incomplete = false;
-                if (!PairRemainingEntrances())
-                    incomplete = true;
-                int unpairedCount = 0;
-                foreach (var (_, e) in allEntrances) {
-                    if (e.couple == null)
-                        unpairedCount++;
-                }
+                int unpairedCount = allEntrances.Count(e => e.Value.couple == null);
                 if (unpairedCount > 0)
                     MelonLogger.Error($"{unpairedCount} entrances are unpaired!");
                 else
                     MelonLogger.Msg("All entrances are paired.");
-                List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
-                foreach (var (_, e) in allEntrances) {
-                    if (e.couple == null) continue;
-                    pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
-                }
-                string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
-                string userDataDir = MelonEnvironment.UserDataDirectory;
-                string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
-                File.WriteAllText(savePath, json);
-                if (!incomplete)
-                    return true;
-                return false;
             } else {
                 MelonLogger.Error("Randomization Failed. Outputting partial results.");
                 MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
-                List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
-                foreach (var (_, e) in allEntrances) {
-                    if (e.couple == null) continue;
-                    pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
-                }
-                string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
-                string userDataDir = MelonEnvironment.UserDataDirectory;
-                string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
-                File.WriteAllText(savePath, json);
-                return false;
             }
+            List<SerializedEntrancePair> pairs = allEntrances
+              .Where(e => e.Value.couple != null)
+              .Select(e => new SerializedEntrancePair { entrance = e.Key, couple = e.Value.couple.id })
+              .ToList();
+            string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
+            string userDataDir = MelonEnvironment.UserDataDirectory;
+            string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
+            File.WriteAllText(savePath, json);
+            return !incomplete;
         }
 
         private static void ResetState() {
@@ -1183,7 +1161,6 @@ namespace GlyphsEntranceRando {
         public static List<UncollectedObjective> knownObjectives = new List<UncollectedObjective>();
         public static List<CollectedObjective> inventory = new List<CollectedObjective>();
         public static InventoryCounters counters = new InventoryCounters();
-        public static Entrance currentEntrance;
 
         public class UncollectedObjective {
             public Objective obj;
@@ -1197,8 +1174,8 @@ namespace GlyphsEntranceRando {
         }
 
         public class SerializedEntrancePair {
-            public ushort entrance { get; set; }
-            public ushort couple { get; set; }
+            public int entrance { get; set; }
+            public int couple { get; set; }
         }
 
         public class InventoryCounters {
