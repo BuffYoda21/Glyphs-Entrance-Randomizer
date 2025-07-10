@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Il2CppSystem.IO;
 using MelonLoader;
 using MelonLoader.Utils;
@@ -43,11 +44,11 @@ namespace GlyphsEntranceRando
                 }
                 foreach (Connection c in insufficentRequirements)
                 {
-                        if (CheckConnection(c))
-                            toExplore.Enqueue(c.exit);
+                    if (CheckConnection(c))
+                        toExplore.Enqueue(c.exit);
                 }
                 if (allEntrances[0x0011].couple != null)
-                        endVisited = true;
+                    endVisited = true;
                 if (endVisited && HasReq(Requirement.ConstructDefeat))
                     goal = true;
             }
@@ -57,7 +58,7 @@ namespace GlyphsEntranceRando
                 if (!PairRemainingEntrances())
                     incomplete = true;
                 int unpairedCount = 0;
-                foreach (Entrance e in allEntrances)
+                foreach (var (_, e) in allEntrances)
                 {
                     if (e.couple == null)
                         unpairedCount++;
@@ -67,7 +68,7 @@ namespace GlyphsEntranceRando
                 else
                     MelonLogger.Msg("All entrances are paired.");
                 List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
-                foreach (Entrance e in allEntrances)
+                foreach (var (_, e) in allEntrances)
                 {
                     if (e.couple == null) continue;
                     pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
@@ -85,7 +86,7 @@ namespace GlyphsEntranceRando
                 MelonLogger.Error("Randomization Failed. Outputting partial results.");
                 MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
                 List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
-                foreach (Entrance e in allEntrances)
+                foreach (var (_, e) in allEntrances)
                 {
                     if (e.couple == null) continue;
                     pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
@@ -97,7 +98,7 @@ namespace GlyphsEntranceRando
                 return false;
             }
         }
-        
+
         private static void ResetState()
         {
             allEntrances.Clear();
@@ -255,23 +256,23 @@ namespace GlyphsEntranceRando
             {
                 switch (req)
                 {
-                    case Requirement.SilverShardx15:    return counters.silverShard >= 15;
-                    case Requirement.GoldShardx1:       return counters.goldShard >= 1;
-                    case Requirement.GoldShardx2:       return counters.goldShard >= 2;
-                    case Requirement.GoldShardx3:       return counters.goldShard >= 3;
-                    case Requirement.SmileTokenx2:      return counters.smileToken >= 2;
-                    case Requirement.SmileTokenx4:      return counters.smileToken >= 4;
-                    case Requirement.SmileTokenx6:      return counters.smileToken >= 6;
-                    case Requirement.SmileTokenx8:      return counters.smileToken >= 8;
-                    case Requirement.SmileTokenx10:     return counters.smileToken >= 10;
-                    case Requirement.RuneCubex3:        return counters.runeCube >= 3;
-                    case Requirement.VoidGateShardx7:   return counters.voidGateShard >= 7;
-                    case Requirement.Sigilx3:           return counters.sigil >= 3;
-                    case Requirement.Glyphstonex3:      return counters.glyphstone >= 3;
-                    case Requirement.SerpentLockx4:     return counters.serpentLock >= 4;
-                    case Requirement.WallJumpx1:        return counters.wallJump >= 1;
-                    case Requirement.WallJumpx2:        return counters.wallJump >= 2;
-                    case Requirement.Seedsx10:          return counters.seeds >= 10;
+                    case Requirement.SilverShardx15: return counters.silverShard >= 15;
+                    case Requirement.GoldShardx1: return counters.goldShard >= 1;
+                    case Requirement.GoldShardx2: return counters.goldShard >= 2;
+                    case Requirement.GoldShardx3: return counters.goldShard >= 3;
+                    case Requirement.SmileTokenx2: return counters.smileToken >= 2;
+                    case Requirement.SmileTokenx4: return counters.smileToken >= 4;
+                    case Requirement.SmileTokenx6: return counters.smileToken >= 6;
+                    case Requirement.SmileTokenx8: return counters.smileToken >= 8;
+                    case Requirement.SmileTokenx10: return counters.smileToken >= 10;
+                    case Requirement.RuneCubex3: return counters.runeCube >= 3;
+                    case Requirement.VoidGateShardx7: return counters.voidGateShard >= 7;
+                    case Requirement.Sigilx3: return counters.sigil >= 3;
+                    case Requirement.Glyphstonex3: return counters.glyphstone >= 3;
+                    case Requirement.SerpentLockx4: return counters.serpentLock >= 4;
+                    case Requirement.WallJumpx1: return counters.wallJump >= 1;
+                    case Requirement.WallJumpx2: return counters.wallJump >= 2;
+                    case Requirement.Seedsx10: return counters.seeds >= 10;
                 }
                 return false;
             }
@@ -294,7 +295,7 @@ namespace GlyphsEntranceRando
                 return e.couple;
             switch (e.type)
             {
-                case EntranceType.Left:  
+                case EntranceType.Left:
                     if (rightEntrances.Count <= 0) return null;
                     rand = UnityEngine.Random.Range(0, rightEntrances.Count);
                     pairing = rightEntrances[rand];
@@ -456,7 +457,7 @@ namespace GlyphsEntranceRando
         */
         private static void CacheRooms()
         {
-            allEntrances = new List<Entrance> {
+            foreach (Entrance e in new List<Entrance> {
                 new Entrance(0x0000, 0x00, EntranceType.Bottom),
                 new Entrance(0x0001, 0x01, EntranceType.Right),
                 new Entrance(0x0002, 0x02, EntranceType.Left),
@@ -511,7 +512,10 @@ namespace GlyphsEntranceRando
                 new Entrance(0x0033, 0x18, EntranceType.Right),
                 new Entrance(0x0034, 0x19, EntranceType.Left),
                 new Entrance(0x0035, 0x19, EntranceType.Top),
-            };
+            })
+            {
+                allEntrances[e.id] = e;
+            }
             allRooms = new List<Room>
             {
                 new Room()
@@ -1219,14 +1223,14 @@ namespace GlyphsEntranceRando
 
         private static void SortEntrances()
         {
-            foreach (Entrance e in allEntrances)
+            foreach (var (_, e) in allEntrances)
             {
                 switch (e.type)
                 {
-                    case EntranceType.Left:     leftEntrances.Add(e);   break;
-                    case EntranceType.Right:    rightEntrances.Add(e);  break;
-                    case EntranceType.Top:      topEntrances.Add(e);    break;
-                    case EntranceType.Bottom:   bottomEntrances.Add(e); break;
+                    case EntranceType.Left: leftEntrances.Add(e); break;
+                    case EntranceType.Right: rightEntrances.Add(e); break;
+                    case EntranceType.Top: topEntrances.Add(e); break;
+                    case EntranceType.Bottom: bottomEntrances.Add(e); break;
                 }
             }
             ShuffleList(leftEntrances);
@@ -1245,7 +1249,7 @@ namespace GlyphsEntranceRando
         }
 
         public static List<Room> allRooms = new List<Room>();
-        public static List<Entrance> allEntrances = new List<Entrance>();
+        public static Dictionary<int, Entrance> allEntrances = new Dictionary<int, Entrance>();
         public static List<Entrance> rightEntrances = new List<Entrance>();
         public static List<Entrance> leftEntrances = new List<Entrance>();
         public static List<Entrance> topEntrances = new List<Entrance>();
