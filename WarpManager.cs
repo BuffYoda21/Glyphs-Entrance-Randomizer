@@ -6,6 +6,7 @@ using System.Collections.Generic;
 namespace GlyphsEntranceRando {
     [HarmonyPatch]
     public static class WarpManager {
+        #pragma warning disable IDE0060 // Remove unused parameter warning
         [HarmonyPatch(typeof(SceneManager), "Internal_SceneLoaded")]
         [HarmonyPostfix]
         public static void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
@@ -24,6 +25,7 @@ namespace GlyphsEntranceRando {
                 warp.GetComponent<DynamicTp>()?.RegisterTargetFromId(warps);
             }
         }
+        #pragma warning restore IDE0060 // Restore unused parameter warning
 
         private static void PlaceWarp(GameObject warp, RoomShuffler.SerializedEntrancePair pair) {
             warp.AddComponent<DynamicTp>();
