@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using Il2CppInterop.Runtime.Injection;
-using Il2CppSystem.IO;
 using MelonLoader;
-using Newtonsoft.Json;
 
 [assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.4.0", "BuffYoda21")]
 [assembly: MelonGame("Vortex Bros.", "GLYPHS")]

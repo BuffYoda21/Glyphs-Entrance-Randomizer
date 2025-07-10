@@ -1,8 +1,6 @@
-using System.Reflection;
 using System.Collections.Generic;
 using System;
 using System.Linq;
-using Il2CppSystem.IO;
 using MelonLoader;
 using Newtonsoft.Json;
 
@@ -219,17 +217,6 @@ namespace GlyphsEntranceRando {
             bottomEntrances.RemoveAll(e => e.couple != null);
         }
 
-        // Reads an embeded readable file from the assembly, note: folder.file.ext
-        private static string ReadEmbeddedData(string path) {
-            var name = Assembly.GetExecutingAssembly().GetName().Name;
-            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"{name}.{path}")!;
-            using var reader = new System.IO.StreamReader(stream, System.Text.Encoding.UTF8);
-            string json = reader.ReadToEnd();
-            return json;
-        }
-        private static int parseHex(string s) { // Parses "0x1234" to 4660
-            return int.Parse(s.Substring(2), System.Globalization.NumberStyles.HexNumber);
-        }
         /*
             * This method is responsible for defining the rooms and their connections in the game.
             * It initializes a list of rooms, each with its own unique ID, entrances, and connections.
@@ -237,61 +224,8 @@ namespace GlyphsEntranceRando {
             * Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
         */
         private static void CacheRooms() {
-            { // read entrance data
-                string json = ReadEmbeddedData("data.entrances.jsonc");
-                var res = JsonConvert.DeserializeObject<Dictionary<string, List<String>>>(json);
-                MelonLogger.Msg($"Loaded {res.Count} entrances");
-                foreach (var (idStr, roomAndType) in res) {
-                    int id = parseHex(idStr);
-                    byte roomId = (byte)parseHex(roomAndType[0]);
-                    if (!Enum.TryParse(roomAndType[1], out EntranceType entranceType)) throw new Exception($"Invalid entrance type {roomAndType[1]}");
-                    allEntrances[id] = new Entrance(id, roomId, entranceType);
-                }
-            }
-            { // Read room data
-                string json = ReadEmbeddedData("data.rooms.jsonc");
-                var res = JsonConvert.DeserializeObject<Dictionary<string, SerializedRoom>>(json);
-                MelonLogger.Msg($"Loaded {res.Count} rooms");
-                allRooms = new List<Room>();
-                foreach (var (id, room) in res) {
-                    List<Connection> connections = new List<Connection>();
-                    foreach (var connection in room.connections) {
-                        string entranceId = connection[0].ToString();
-                        string exitOrObjective = connection[1].ToString();
-
-                        Entrance entrance = allEntrances[parseHex(entranceId)];
-                        Entrance exit = null; ;
-                        Objective objective = Objective.None;
-                        if (!Enum.TryParse(exitOrObjective, out objective)) {
-                            exit = allEntrances[parseHex(exitOrObjective)];
-                        }
-                        List<List<Requirement>> requirements = null;
-                        if (connection[2] != null) {
-                            requirements = new List<List<Requirement>>();
-                            foreach (var arr in (Newtonsoft.Json.Linq.JArray)connection[2]) {
-                                List<Requirement> reqs = new List<Requirement>();
-                                foreach (var reqStr in (Newtonsoft.Json.Linq.JArray)arr) {
-                                    if (!Enum.TryParse(reqStr.ToString(), out Requirement requirement)) throw new Exception($"Invalid requirement {reqStr}");
-                                    reqs.Add(requirement);
-                                }
-                                requirements.Add(reqs);
-                            }
-                        }
-                        connections.Add(new Connection(entrance, exit, requirements) {
-                            obj = objective,
-                        });
-                    }
-                    allRooms.Add(new Room {
-                        id = (byte)parseHex(id),
-                        canMap = room.canMap,
-                        bossRoom = room.bossRoom,
-                        hasWarp = room.hasWarp,
-                        isStartRoom = room.isStartRoom,
-                        entrances = room.entrances.Select(e => allEntrances[parseHex(e)]).ToList(), // fetch the entrances by id
-                        connections = connections,
-                    });
-                }
-            }
+            allEntrances = Resources.Entrances.Contents;
+            allRooms = Resources.Rooms.Contents;
         }
 
         private static void SortEntrances() {
@@ -340,27 +274,6 @@ namespace GlyphsEntranceRando {
             public Objective obj;
             public byte rm;
         }
-
-        public class SerializedRoom {
-            public List<String> entrances { get; set; } // List of hexadecimal entrance ids
-            // This is [string, string, List<List< string(Requirement) >>][]
-            public List<List<object>> connections { get; set; }
-            public byte id { get; set; } = 0x00;
-            public bool canMap { get; set; } = true;
-            public bool bossRoom { get; set; } = false;
-            public bool hasWarp { get; set; } = false;
-            public bool isStartRoom { get; set; } = false;
-        }
-
-        // "0x00": {
-        //   "entrances": [
-        //     "0x0000" //bottom
-        //   ],
-        //   "connections": [
-        //     ["0x0000", "0x0000", null],
-        //     ["0x0000", "SilverShard", null]
-        //   ]
-        // },
         public class InventoryCounters {
             public int silverShard = 0;
             public int goldShard = 0;

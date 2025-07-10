@@ -2,6 +2,7 @@
 // Each room has a list of hexadecimal entrance ids, a list of connections, and boolean properties
 // each connection is an [entranceid, exit or objective, list<requirement>]
 // If the second value is hexadecimal, it is an entrance id, otherwise it is an objective
+// Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
 {
   "0x00": {
     "entrances": [
