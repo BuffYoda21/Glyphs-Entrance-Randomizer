@@ -14,7 +14,7 @@ namespace GlyphsEntranceRando {
             SortEntrances();
             bool endVisited = false;
             bool goal = false;
-            toExplore.Enqueue(allEntrances[0x0001]);
+            toExplore.Enqueue(allEntrances[STARTING_ROOM]);
             while (toExplore.Count > 0 && !goal) {
                 MelonLogger.Msg($"{toExplore.Count} entrances to explore");
                 currentEntrance = toExplore.Dequeue();
@@ -38,7 +38,7 @@ namespace GlyphsEntranceRando {
                     if (CheckConnection(c))
                         toExplore.Enqueue(c.exit);
                 }
-                if (allEntrances[0x0011].couple != null)
+                if (allEntrances[ENDING_ROOM].couple != null)
                     endVisited = true;
                 if (endVisited && HasReq(Requirement.ConstructDefeat))
                     goal = true;
@@ -1171,6 +1171,8 @@ namespace GlyphsEntranceRando {
         }
 
         public static List<Room> allRooms = new List<Room>();
+        public const int STARTING_ROOM = 0x0001; // Magic number, make sure this is the first room in the game
+        public const int ENDING_ROOM = 0x0011; // Magic number, make sure this is the last room in the game
         public static Dictionary<int, Entrance> allEntrances = new Dictionary<int, Entrance>();
         public static List<Entrance> rightEntrances = new List<Entrance>();
         public static List<Entrance> leftEntrances = new List<Entrance>();
