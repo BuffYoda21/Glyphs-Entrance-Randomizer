@@ -1,5 +1,4 @@
 using UnityEngine;
-using MelonLoader;
 using HarmonyLib;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
@@ -13,20 +12,18 @@ namespace GlyphsEntranceRando {
             if (scene.handle == lastSceneHandle)
                 return;
             lastSceneHandle = scene.handle;
-            if (scene.name == "Game") {
-                warpParent = new GameObject("Warps");
-                if (entrancePairs != null) {
-                    foreach (RoomShuffler.SerializedEntrancePair pair in entrancePairs) {
-                        GameObject warp = new GameObject($"0x{pair.entrance:X4}");
-                        warp.transform.SetParent(warpParent.transform);
-                        PlaceWarp(warp, pair);
-                        warps.Add(warp);
-                    }
-                    foreach (GameObject warp in warps) {
-                        if (warp.GetComponent<DynamicTp>())
-                            warp.GetComponent<DynamicTp>().RegisterTargetFromId(warps);
-                    }
-                }
+            if (scene.name != "Game") return;
+            warpParent = new GameObject("Warps");
+            if (entrancePairs == null) return;
+
+            foreach (RoomShuffler.SerializedEntrancePair pair in entrancePairs) {
+                GameObject warp = new GameObject($"0x{pair.entrance:X4}");
+                warp.transform.SetParent(warpParent.transform);
+                PlaceWarp(warp, pair);
+                warps.Add(warp);
+            }
+            foreach (GameObject warp in warps) {
+                warp.GetComponent<DynamicTp>()?.RegisterTargetFromId(warps);
             }
         }
 

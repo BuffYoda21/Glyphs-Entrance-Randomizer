@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using Il2CppSystem.IO;
 using MelonLoader;
-using MelonLoader.Utils;
 using Newtonsoft.Json;
 
 namespace GlyphsEntranceRando {
@@ -13,76 +13,52 @@ namespace GlyphsEntranceRando {
             HashSet<Connection> insufficentRequirements = new HashSet<Connection>();
             CacheRooms();
             SortEntrances();
-            bool endVisited = false;
             bool goal = false;
-            toExplore.Enqueue(allEntrances[0x0001]);
-            while (toExplore.Count > 0 && !goal) {
-                MelonLogger.Msg($"{toExplore.Count} entrances to explore");
-                currentEntrance = toExplore.Dequeue();
+            toExplore.Enqueue(allEntrances[STARTING_ROOM]);
+            while (!goal && toExplore.TryDequeue(out Entrance currentEntrance)) {
+                MelonLogger.Msg($"{toExplore.Count + 1} entrances to explore");
                 if (currentEntrance.couple == null) {
-                    PairEntrance(currentEntrance);
-                    if (currentEntrance == null) {
+                    if (PairEntrance(currentEntrance) == null) {
                         MelonLogger.Error($"Failed to pair entrance {currentEntrance.id}");
                         return false;
                     }
                 }
-                List<Connection> shuffledConnections = new List<Connection>(allRooms[currentEntrance.couple.roomId].connections);
+                List<Connection> shuffledConnections = new List<Connection>(allRooms[currentEntrance.couple.roomId].connections)
+                  .Where(c => c.enter.id == currentEntrance.couple.id) // Only connections that enter through the current entrance
+                  .ToList();
                 ShuffleList(shuffledConnections);
                 foreach (Connection c in shuffledConnections) {
-                    if (c.enter.id != currentEntrance.couple.id) continue;   //we didnt enter through this entrance so ignore
                     if (CheckConnection(c))
                         toExplore.Enqueue(c.exit);
                     else if (c.exit != null)
                         insufficentRequirements.Add(c);
                 }
-                foreach (Connection c in insufficentRequirements) {
-                    if (CheckConnection(c))
-                        toExplore.Enqueue(c.exit);
+                foreach (Connection c in insufficentRequirements.Where(CheckConnection)) {
+                    toExplore.Enqueue(c.exit);
                 }
-                if (allEntrances[0x0011].couple != null)
-                    endVisited = true;
-                if (endVisited && HasReq(Requirement.ConstructDefeat))
-                    goal = true;
+
+                bool endVisited = allEntrances[ENDING_ROOM].couple != null;
+                goal = endVisited && HasReq(Requirement.ConstructDefeat);
             }
+            bool success = goal;
             if (goal) {
-                bool incomplete = false;
-                if (!PairRemainingEntrances())
-                    incomplete = true;
-                int unpairedCount = 0;
-                foreach (var (_, e) in allEntrances) {
-                    if (e.couple == null)
-                        unpairedCount++;
-                }
+                success = PairRemainingEntrances();
+                int unpairedCount = allEntrances.Count(e => e.Value.couple == null);
                 if (unpairedCount > 0)
                     MelonLogger.Error($"{unpairedCount} entrances are unpaired!");
                 else
                     MelonLogger.Msg("All entrances are paired.");
-                List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
-                foreach (var (_, e) in allEntrances) {
-                    if (e.couple == null) continue;
-                    pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
-                }
-                string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
-                string userDataDir = MelonEnvironment.UserDataDirectory;
-                string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
-                File.WriteAllText(savePath, json);
-                if (!incomplete)
-                    return true;
-                return false;
             } else {
                 MelonLogger.Error("Randomization Failed. Outputting partial results.");
                 MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
-                List<SerializedEntrancePair> pairs = new List<SerializedEntrancePair>();
-                foreach (var (_, e) in allEntrances) {
-                    if (e.couple == null) continue;
-                    pairs.Add(new SerializedEntrancePair { entrance = e.id, couple = e.couple.id });
-                }
-                string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
-                string userDataDir = MelonEnvironment.UserDataDirectory;
-                string savePath = Path.Combine(userDataDir, "RandomizationResults.json");
-                File.WriteAllText(savePath, json);
-                return false;
             }
+            List<SerializedEntrancePair> pairs = allEntrances
+              .Where(e => e.Value.couple != null)
+              .Select(e => new SerializedEntrancePair { entrance = e.Key, couple = e.Value.couple.id })
+              .ToList();
+            string json = JsonConvert.SerializeObject(pairs, Formatting.Indented);
+            File.WriteAllText(Main.JSON_SAVE_PATH, json);
+            return success;
         }
 
         private static void ResetState() {
@@ -98,36 +74,17 @@ namespace GlyphsEntranceRando {
             counters = new InventoryCounters();
         }
 
-        private static bool CheckConnection(Connection c)   //returns true if a new entrance should be added to toExplore
-        {
-
-            if (c.obj != Objective.None)   //is this connection connecting to an objective?
-            {
-                bool collected = false;
-                foreach (CollectedObjective co in inventory) {
-                    collected = c.obj == co.obj && c.enter.roomId == co.rm;
-                    if (collected) break;
-                }
+        private static bool CheckConnection(Connection c) { //returns true if a new entrance should be added to toExplore
+            if (c.obj != Objective.None) { //is this connection connecting to an objective?
+                bool collected = inventory.Any(co => c.obj == co.obj && c.enter.roomId == co.rm);
                 if (collected) return false;     //this objective is already collected
                 if (TryCollectObjective(c)) {
-                    for (int i = 0; i < knownObjectives.Count; i++) {
-                        UncollectedObjective o = knownObjectives[i];
-                        if (o.obj == c.obj && o.rm == c.enter.roomId) {
-                            knownObjectives.RemoveAt(i);
-                            break;
-                        }
-                    }
+                    knownObjectives.RemoveAll(o => o.obj == c.obj && o.rm == c.enter.roomId);
                 } else {
-                    bool newConnectionMade = false;
-                    for (int i = 0; i < knownObjectives.Count; i++) {
-                        UncollectedObjective o = knownObjectives[i];
-                        if (o.obj == c.obj && o.rm == c.enter.roomId && !o.connections.Contains(c)) {
-                            o.connections.Add(c);
-                            newConnectionMade = true;
-                            break;
-                        }
-                    }
-                    if (!newConnectionMade) {
+                    UncollectedObjective o = knownObjectives.Find(o => o.obj == c.obj && o.rm == c.enter.roomId && !o.connections.Contains(c));
+                    if (o != null) {
+                        o.connections.Add(c);
+                    } else {
                         knownObjectives.Add(new UncollectedObjective {
                             obj = c.obj,
                             rm = c.enter.roomId,
@@ -135,30 +92,12 @@ namespace GlyphsEntranceRando {
                         });
                     }
                 }
-            } else    //this connection must be connecting to another entrance
-              {
+                return false;
+            } else { //this connection must be connecting to another entrance
                 if (c.exit.couple != null) return false;    //this entrance is already coupled meaning we visited it already so ignore
-                bool reqMet = false;
-                if (c.requirements == null)
-                    reqMet = true;
-                else {
-                    foreach (List<Requirement> list in c.requirements) {
-                        reqMet = true;
-                        foreach (Requirement req in list) {
-                            if (!HasReq(req)) {
-                                reqMet = false;
-                                break;
-                            }
-                        }
-                        if (reqMet) {
-                            break;
-                        }
-                    }
-                }
-                if (reqMet)
-                    return true;
+                bool reqMet = c.requirements == null || c.requirements.Any(list => list.All(HasReq));
+                return reqMet;
             }
-            return false;
         }
 
         private static bool TryCollectObjective(Connection c) {
@@ -166,167 +105,101 @@ namespace GlyphsEntranceRando {
                 MelonLogger.Error($"entrance {c.exit.id} is an entrance not an objective.");
                 return false;
             }
-            bool collected = false;
-            if (c.requirements == null) {
-                collected = true;
-            } else {
-                foreach (List<Requirement> list in c.requirements) {
-                    collected = true;
-                    foreach (Requirement req in list) {
-                        if (!HasReq(req)) {
-                            collected = false;
+            bool collected = c.requirements == null || c.requirements.Any(list => list.All(HasReq));
+            if (collected) {
+                switch (c.obj) {
+                    case Objective.SilverShard: counters.silverShard++; break;
+                    case Objective.GoldShard: counters.goldShard++; break;
+                    case Objective.SmileToken: counters.smileToken++; break;
+                    case Objective.RuneCube: counters.runeCube++; break;
+                    case Objective.VoidGateShard: counters.voidGateShard++; break;
+                    case Objective.Sigil: counters.sigil++; break;
+                    case Objective.Glyphstone: counters.glyphstone++; break;
+                    case Objective.SerpentLock: counters.serpentLock++; break;
+                    case Objective.WallJump: counters.wallJump++; break;
+                    case Objective.Seeds: counters.seeds++; break;
+                    default: { //standard objective
+                            inventory.Add(new CollectedObjective {
+                                obj = c.obj,
+                                rm = c.enter.roomId,
+                            });
                             break;
                         }
-                    }
-                    if (collected) break;
-                }
-            }
-            if (collected) {
-                if ((int)c.obj >= 0x01 && (int)c.obj <= 0x12)   //this objective is a counter
-                {
-                    switch (c.obj) {
-                        case Objective.SilverShard: counters.silverShard++; break;
-                        case Objective.GoldShard: counters.goldShard++; break;
-                        case Objective.SmileToken: counters.smileToken++; break;
-                        case Objective.RuneCube: counters.runeCube++; break;
-                        case Objective.VoidGateShard: counters.voidGateShard++; break;
-                        case Objective.Sigil: counters.sigil++; break;
-                        case Objective.Glyphstone: counters.glyphstone++; break;
-                        case Objective.SerpentLock: counters.serpentLock++; break;
-                        case Objective.WallJump: counters.wallJump++; break;
-                        case Objective.Seeds: counters.seeds++; break;
-                    }
-                } else    //standard objective
-                  {
-                    inventory.Add(new CollectedObjective {
-                        obj = c.obj,
-                        rm = c.enter.roomId,
-                    });
                 }
             }
             return collected;
         }
 
         private static bool HasReq(Requirement req) {
-            if ((int)req >= 0x01 && (int)req <= 0x12)   //this requirement is a counter
-            {
-                switch (req) {
-                    case Requirement.SilverShardx15: return counters.silverShard >= 15;
-                    case Requirement.GoldShardx1: return counters.goldShard >= 1;
-                    case Requirement.GoldShardx2: return counters.goldShard >= 2;
-                    case Requirement.GoldShardx3: return counters.goldShard >= 3;
-                    case Requirement.SmileTokenx2: return counters.smileToken >= 2;
-                    case Requirement.SmileTokenx4: return counters.smileToken >= 4;
-                    case Requirement.SmileTokenx6: return counters.smileToken >= 6;
-                    case Requirement.SmileTokenx8: return counters.smileToken >= 8;
-                    case Requirement.SmileTokenx10: return counters.smileToken >= 10;
-                    case Requirement.RuneCubex3: return counters.runeCube >= 3;
-                    case Requirement.VoidGateShardx7: return counters.voidGateShard >= 7;
-                    case Requirement.Sigilx3: return counters.sigil >= 3;
-                    case Requirement.Glyphstonex3: return counters.glyphstone >= 3;
-                    case Requirement.SerpentLockx4: return counters.serpentLock >= 4;
-                    case Requirement.WallJumpx1: return counters.wallJump >= 1;
-                    case Requirement.WallJumpx2: return counters.wallJump >= 2;
-                    case Requirement.Seedsx10: return counters.seeds >= 10;
-                }
-                return false;
-            } else    //standard requirement
-              {
-                foreach (CollectedObjective cobj in inventory) {
-                    if ((int)req == (int)cobj.obj)
-                        return true;
-                }
-                return false;
+            switch (req) {
+                case Requirement.SilverShardx15: return counters.silverShard >= 15;
+                case Requirement.GoldShardx1: return counters.goldShard >= 1;
+                case Requirement.GoldShardx2: return counters.goldShard >= 2;
+                case Requirement.GoldShardx3: return counters.goldShard >= 3;
+                case Requirement.SmileTokenx2: return counters.smileToken >= 2;
+                case Requirement.SmileTokenx4: return counters.smileToken >= 4;
+                case Requirement.SmileTokenx6: return counters.smileToken >= 6;
+                case Requirement.SmileTokenx8: return counters.smileToken >= 8;
+                case Requirement.SmileTokenx10: return counters.smileToken >= 10;
+                case Requirement.RuneCubex3: return counters.runeCube >= 3;
+                case Requirement.VoidGateShardx7: return counters.voidGateShard >= 7;
+                case Requirement.Sigilx3: return counters.sigil >= 3;
+                case Requirement.Glyphstonex3: return counters.glyphstone >= 3;
+                case Requirement.SerpentLockx4: return counters.serpentLock >= 4;
+                case Requirement.WallJumpx1: return counters.wallJump >= 1;
+                case Requirement.WallJumpx2: return counters.wallJump >= 2;
+                case Requirement.Seedsx10: return counters.seeds >= 10;
+                default: return inventory.Any(cobj => (int)cobj.obj == (int)req); //standard requirement
             }
         }
 
         private static Entrance PairEntrance(Entrance e) {
-            Entrance pairing;
-            int rand;
-            if (e.couple != null)
-                return e.couple;
+            if (e.couple != null) return e.couple;
+            List<Entrance> directionToPair = null, directionToRemove = null;
             switch (e.type) {
                 case EntranceType.Left:
-                    if (rightEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, rightEntrances.Count);
-                    pairing = rightEntrances[rand];
-                    rightEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < leftEntrances.Count; i++) {
-                        if (e.id == leftEntrances[i].id) {
-                            leftEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = rightEntrances;
+                    directionToRemove = leftEntrances;
+                    break;
                 case EntranceType.Right:
-                    if (leftEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, leftEntrances.Count);
-                    pairing = leftEntrances[rand];
-                    leftEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < rightEntrances.Count; i++) {
-                        if (e.id == rightEntrances[i].id) {
-                            rightEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = leftEntrances;
+                    directionToRemove = rightEntrances;
+                    break;
                 case EntranceType.Top:
-                    if (bottomEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, bottomEntrances.Count);
-                    pairing = bottomEntrances[rand];
-                    bottomEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < topEntrances.Count; i++) {
-                        if (e.id == topEntrances[i].id) {
-                            topEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = bottomEntrances;
+                    directionToRemove = topEntrances;
+                    break;
                 case EntranceType.Bottom:
-                    if (topEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, topEntrances.Count);
-                    pairing = topEntrances[rand];
-                    topEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < bottomEntrances.Count; i++) {
-                        if (e.id == bottomEntrances[i].id) {
-                            bottomEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = topEntrances;
+                    directionToRemove = bottomEntrances;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            return null;
+
+            if (directionToPair.Count <= 0) return null;
+            int rand = UnityEngine.Random.Range(0, directionToPair.Count);
+            Entrance pairing = directionToPair[rand];
+            directionToPair.RemoveAt(rand);
+
+            e.couple = pairing;
+            pairing.couple = e;
+
+            directionToRemove.Remove(e);
+            VerifyEntrancePairings();
+            return pairing;
         }
 
         public static bool PairRemainingEntrances() {
             VerifyEntrancePairings();
+            // PairEntrance calls VerifyEntrancePairings, which will remove paired entrances from the lists, so the while loops will exit
             while (rightEntrances.Count > 0) {
-                if (rightEntrances[0].couple != null) {
-                    rightEntrances.RemoveAt(0);
-                    continue;
-                }
                 if (PairEntrance(rightEntrances[0]) == null) {
                     MelonLogger.Error($"Failed to pair entrance {rightEntrances[0].id} at the end of randomization");
                     return false;
                 }
             }
             while (topEntrances.Count > 0) {
-                if (topEntrances[0].couple != null) {
-                    topEntrances.RemoveAt(0);
-                    continue;
-                }
                 if (PairEntrance(topEntrances[0]) == null) {
                     MelonLogger.Error($"Failed to pair entrance {topEntrances[0].id} at the end of randomization");
                     return false;
@@ -341,42 +214,10 @@ namespace GlyphsEntranceRando {
         }
 
         private static void VerifyEntrancePairings() {
-            int i = 0;
-            while (true) {
-                if (i >= rightEntrances.Count)
-                    break;
-                if (rightEntrances[i].couple != null)
-                    rightEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
-            i = 0;
-            while (true) {
-                if (i >= leftEntrances.Count)
-                    break;
-                if (leftEntrances[i].couple != null)
-                    leftEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
-            i = 0;
-            while (true) {
-                if (i >= topEntrances.Count)
-                    break;
-                if (topEntrances[i].couple != null)
-                    topEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
-            i = 0;
-            while (true) {
-                if (i >= bottomEntrances.Count)
-                    break;
-                if (bottomEntrances[i].couple != null)
-                    bottomEntrances.RemoveAt(i);
-                else
-                    i++;
-            }
+            rightEntrances.RemoveAll(e => e.couple != null);
+            leftEntrances.RemoveAll(e => e.couple != null);
+            topEntrances.RemoveAll(e => e.couple != null);
+            bottomEntrances.RemoveAll(e => e.couple != null);
         }
 
         /*
@@ -1172,6 +1013,8 @@ namespace GlyphsEntranceRando {
         }
 
         public static List<Room> allRooms = new List<Room>();
+        public const int STARTING_ROOM = 0x0001; // Magic number, make sure this is the first room in the game
+        public const int ENDING_ROOM = 0x0011; // Magic number, make sure this is the last room in the game
         public static Dictionary<int, Entrance> allEntrances = new Dictionary<int, Entrance>();
         public static List<Entrance> rightEntrances = new List<Entrance>();
         public static List<Entrance> leftEntrances = new List<Entrance>();
@@ -1182,7 +1025,6 @@ namespace GlyphsEntranceRando {
         public static List<UncollectedObjective> knownObjectives = new List<UncollectedObjective>();
         public static List<CollectedObjective> inventory = new List<CollectedObjective>();
         public static InventoryCounters counters = new InventoryCounters();
-        public static Entrance currentEntrance;
 
         public class UncollectedObjective {
             public Objective obj;
@@ -1196,8 +1038,8 @@ namespace GlyphsEntranceRando {
         }
 
         public class SerializedEntrancePair {
-            public ushort entrance { get; set; }
-            public ushort couple { get; set; }
+            public int entrance { get; set; }
+            public int couple { get; set; }
         }
 
         public class InventoryCounters {
