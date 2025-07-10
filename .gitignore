@@ -1,0 +1,5 @@
+*.csproj
+*.sln
+/libs/
+/obj/
+/bin/
