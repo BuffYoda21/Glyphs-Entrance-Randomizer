@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using Il2CppSystem.IO;
 using MelonLoader;
-using MelonLoader.Utils;
 using Newtonsoft.Json;
 
 namespace GlyphsEntranceRando {
@@ -153,73 +153,40 @@ namespace GlyphsEntranceRando {
         }
 
         private static Entrance PairEntrance(Entrance e) {
-            Entrance pairing;
-            int rand;
-            if (e.couple != null)
-                return e.couple;
+            if (e.couple != null) return e.couple;
+            List<Entrance> directionToPair = null, directionToRemove = null;
             switch (e.type) {
                 case EntranceType.Left:
-                    if (rightEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, rightEntrances.Count);
-                    pairing = rightEntrances[rand];
-                    rightEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < leftEntrances.Count; i++) {
-                        if (e.id == leftEntrances[i].id) {
-                            leftEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = rightEntrances;
+                    directionToRemove = leftEntrances;
+                    break;
                 case EntranceType.Right:
-                    if (leftEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, leftEntrances.Count);
-                    pairing = leftEntrances[rand];
-                    leftEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < rightEntrances.Count; i++) {
-                        if (e.id == rightEntrances[i].id) {
-                            rightEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = leftEntrances;
+                    directionToRemove = rightEntrances;
+                    break;
                 case EntranceType.Top:
-                    if (bottomEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, bottomEntrances.Count);
-                    pairing = bottomEntrances[rand];
-                    bottomEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < topEntrances.Count; i++) {
-                        if (e.id == topEntrances[i].id) {
-                            topEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = bottomEntrances;
+                    directionToRemove = topEntrances;
+                    break;
                 case EntranceType.Bottom:
-                    if (topEntrances.Count <= 0) return null;
-                    rand = UnityEngine.Random.Range(0, topEntrances.Count);
-                    pairing = topEntrances[rand];
-                    topEntrances.RemoveAt(rand);
-                    e.couple = pairing;
-                    pairing.couple = e;
-                    for (int i = 0; i < bottomEntrances.Count; i++) {
-                        if (e.id == bottomEntrances[i].id) {
-                            bottomEntrances.RemoveAt(i);
-                            break;
-                        }
-                    }
-                    VerifyEntrancePairings();
-                    return pairing;
+                    directionToPair = topEntrances;
+                    directionToRemove = bottomEntrances;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            return null;
+
+            if (directionToPair.Count <= 0) return null;
+            int rand = UnityEngine.Random.Range(0, directionToPair.Count);
+            Entrance pairing = directionToPair[rand];
+            directionToPair.RemoveAt(rand);
+
+            e.couple = pairing;
+            pairing.couple = e;
+
+            directionToRemove.Remove(e);
+            VerifyEntrancePairings();
+            return pairing;
         }
 
         public static bool PairRemainingEntrances() {
