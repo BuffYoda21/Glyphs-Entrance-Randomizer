@@ -57,6 +57,10 @@ namespace GlyphsEntranceRando {
                     allEntrances[id] = new Entrance(id, roomId, entranceType, position, scale);
                 }
             }
+            private const int STARTING_ENTRANCE_ID = 0x0001; // Magic number, make sure this is the first Entrance in the game
+            private const int ENDING_ENTRANCE_ID = 0x0011; // Magic number, make sure this is the last Entrance in the game
+            public static Entrance StartingEntrance => Contents[STARTING_ENTRANCE_ID];
+            public static Entrance EndingEntrance => Contents[ENDING_ENTRANCE_ID];
             // Gets the contents of the entrances.jsonc file
             // Returns a dictionary of entrance IDs to Entrance objects
             public static Dictionary<int, Entrance> Contents {

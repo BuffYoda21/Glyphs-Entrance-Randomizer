@@ -9,10 +9,12 @@ namespace GlyphsEntranceRando {
             ResetState();
             Queue<Entrance> toExplore = new Queue<Entrance>();
             HashSet<Connection> insufficentRequirements = new HashSet<Connection>();
-            CacheRooms();
-            SortEntrances();
+
+            Dictionary<int, Entrance> allEntrances = Resources.Entrances.Contents;
+            SortEntrances(allEntrances.Values.ToList());
+
             bool goal = false;
-            toExplore.Enqueue(allEntrances[STARTING_ROOM]);
+            toExplore.Enqueue(Resources.Entrances.StartingEntrance);
             while (!goal && toExplore.TryDequeue(out Entrance currentEntrance)) {
                 MelonLogger.Msg($"{toExplore.Count + 1} entrances to explore");
                 Entrance couple;
@@ -23,6 +25,7 @@ namespace GlyphsEntranceRando {
                         return false;
                     }
                 }
+                List<Room> allRooms = Resources.Rooms.Contents;
                 List<Connection> shuffledConnections = new List<Connection>(allRooms[couple.roomId].connections)
                   .Where(c => c.enter.id == couple.id) // Only connections that enter through the current entrance
                   .ToList();
@@ -37,13 +40,13 @@ namespace GlyphsEntranceRando {
                     toExplore.Enqueue(c.exit);
                 }
 
-                bool endVisited = coupledEntrances.ContainsKey(allEntrances[ENDING_ROOM]);
+                bool endVisited = coupledEntrances.ContainsKey(Resources.Entrances.EndingEntrance);
                 goal = endVisited && HasReq(Requirement.ConstructDefeat);
             }
             bool success = goal;
             if (goal) {
                 success = PairRemainingEntrances();
-                int unpairedCount = allEntrances.Count(e => !coupledEntrances.ContainsKey(e.Value));
+                int unpairedCount = allEntrances.Values.Count(e => !coupledEntrances.ContainsKey(e));
                 if (unpairedCount > 0)
                     MelonLogger.Error($"{unpairedCount} entrances are unpaired!");
                 else
@@ -52,15 +55,14 @@ namespace GlyphsEntranceRando {
                 MelonLogger.Error("Randomization Failed. Outputting partial results.");
                 MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
             }
-            Resources.ResultsJSON.Contents = allEntrances
-              .Where(e => coupledEntrances.ContainsKey(e.Value))
-              .Select(e => new SerializedEntrancePair { entrance = e.Key, couple = coupledEntrances[e.Value].id })
+            Resources.ResultsJSON.Contents = allEntrances.Values
+              .Where(e => coupledEntrances.ContainsKey(e))
+              .Select(e => new SerializedEntrancePair { entrance = e.id, couple = coupledEntrances[e].id })
               .ToList();
             return success;
         }
 
         private static void ResetState() {
-            allEntrances.Clear();
             leftEntrances.Clear();
             rightEntrances.Clear();
             topEntrances.Clear();
@@ -217,19 +219,8 @@ namespace GlyphsEntranceRando {
             bottomEntrances.RemoveAll(coupledEntrances.ContainsKey);
         }
 
-        /*
-            * This method is responsible for defining the rooms and their connections in the game.
-            * It initializes a list of rooms, each with its own unique ID, entrances, and connections.
-            * The rooms are defined with various logical requirements to traverse from one point of the room to another.
-            * Room IDs can be found using this map: https://docs.google.com/drawings/d/1DluHagwEgCopeYC3MONZ8b0qSep82Xakf4qVV6wx7fE/edit?usp=sharing
-        */
-        private static void CacheRooms() {
-            allEntrances = Resources.Entrances.Contents;
-            allRooms = Resources.Rooms.Contents;
-        }
-
-        private static void SortEntrances() {
-            foreach (var (_, e) in allEntrances) {
+        private static void SortEntrances(List<Entrance> entrances) {
+            foreach (var e in entrances) {
                 switch (e.type) {
                     case EntranceType.Left: leftEntrances.Add(e); break;
                     case EntranceType.Right: rightEntrances.Add(e); break;
@@ -250,11 +241,6 @@ namespace GlyphsEntranceRando {
             }
         }
 
-        public static List<Room> allRooms = new List<Room>();
-        public const int STARTING_ROOM = 0x0001; // Magic number, make sure this is the first room in the game
-        public const int ENDING_ROOM = 0x0011; // Magic number, make sure this is the last room in the game
-
-        public static Dictionary<int, Entrance> allEntrances = new Dictionary<int, Entrance>();
         // Used to keep track of which entrances have been paired (instead of modifying the object)
         public static Dictionary<Entrance, Entrance> coupledEntrances = new Dictionary<Entrance, Entrance>();
         public static List<Entrance> rightEntrances = new List<Entrance>();
