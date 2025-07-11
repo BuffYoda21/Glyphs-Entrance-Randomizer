@@ -1,9 +1,7 @@
+using UnityEngine;
 using System.Collections.Generic;
 using Il2CppInterop.Runtime.Injection;
-using Il2CppSystem.IO;
 using MelonLoader;
-using MelonLoader.Utils;
-using Newtonsoft.Json;
 
 [assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.4.0", "BuffYoda21")]
 [assembly: MelonGame("Vortex Bros.", "GLYPHS")]
@@ -19,20 +17,19 @@ namespace GlyphsEntranceRando {
         }
 
         public void LoadRandomizedEntrances() {
-            if (File.Exists(JSON_SAVE_PATH)) {
-                try {
-                    string json = File.ReadAllText(JSON_SAVE_PATH);
-                    WarpManager.entrancePairs = JsonConvert.DeserializeObject<List<RoomShuffler.SerializedEntrancePair>>(json);
-                    if (WarpManager.entrancePairs?.Count == 54) {
-                        MelonLogger.Msg($"Loaded existing {JSON_SAVE_NAME}.");
-                        return; // stop here if we've loaded the entrances
-                    } else {
-                        MelonLogger.Warning($"{JSON_SAVE_NAME} is incomplete or invalid, generating new seed.");
-                    }
-                } catch {
-                    MelonLogger.Error($"Failed to load {JSON_SAVE_NAME}, generating new seed.");
+            List<SerializedEntrancePair> entrancePairs = Resources.ResultsJSON.Contents; // null if the file doesn't exist or is invalid
+            if (entrancePairs != null) {
+                if (entrancePairs.Count == 54) {
+                    WarpManager.entrancePairs = entrancePairs;
+                    MelonLogger.Msg($"Loaded existing {Resources.ResultsJSON.NAME}.");
+                    return; // stop here if we've loaded the entrances
+                } else {
+                    MelonLogger.Warning($"{Resources.ResultsJSON.NAME} is incomplete, generating new seed.");
                 }
+            } else {
+                MelonLogger.Warning($"{Resources.ResultsJSON.NAME} is incomplete or invalid, generating new seed.");
             }
+
             for (int i = 0; i > -1; i++) {
                 if (RoomShuffler.Shuffle()) {
                     MelonLogger.Msg($"{i} randomization attempts tried");
@@ -43,8 +40,6 @@ namespace GlyphsEntranceRando {
             }
         }
 
-        public static string JSON_SAVE_NAME = "RandomizationResults.json";
-        public static string JSON_SAVE_PATH = Path.Combine(MelonEnvironment.UserDataDirectory, JSON_SAVE_NAME);
     }
 
     public class Room {
@@ -85,16 +80,18 @@ namespace GlyphsEntranceRando {
     }
 
     public class Entrance {
-        public Entrance(int id, byte roomId, EntranceType type) {
+        public Entrance(int id, byte roomId, EntranceType type, Vector3 position, Vector3 scale) {
             this.id = id;
             this.roomId = roomId;
             this.type = type;
+            this.position = position;
+            this.scale = scale;
         }
-
         public int id = 0x0000;
-        public byte roomId = 0x00;
-        public EntranceType type = EntranceType.Right;
-        public Entrance couple = null;
+        public Vector3 position;
+        public Vector3 scale;
+        public byte roomId;
+        public EntranceType type;
     }
 
     public enum Objective : byte {
