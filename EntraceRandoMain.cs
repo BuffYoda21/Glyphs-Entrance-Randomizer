@@ -14,6 +14,10 @@ namespace GlyphsEntranceRando {
             harmony.PatchAll();
             LoadRandomizedEntrances();
             ClassInjector.RegisterTypeInIl2Cpp<DynamicTp>();
+            ClassInjector.RegisterTypeInIl2Cpp<WorldManager>();
+            worldManager = new GameObject("World Manager");
+            Object.DontDestroyOnLoad(worldManager);
+            worldManager.AddComponent<WorldManager>();
         }
 
         public void LoadRandomizedEntrances() {
@@ -40,6 +44,7 @@ namespace GlyphsEntranceRando {
             }
         }
 
+        public GameObject worldManager;
     }
 
     public class Room {
