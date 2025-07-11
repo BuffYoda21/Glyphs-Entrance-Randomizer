@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Collections.Generic;
 using Il2CppInterop.Runtime.Injection;
 using MelonLoader;
@@ -79,15 +80,18 @@ namespace GlyphsEntranceRando {
     }
 
     public class Entrance {
-        public Entrance(int id, byte roomId, EntranceType type) {
+        public Entrance(int id, byte roomId, EntranceType type, Vector3 position, Vector3 scale) {
             this.id = id;
             this.roomId = roomId;
             this.type = type;
+            this.position = position;
+            this.scale = scale;
         }
-
         public int id = 0x0000;
-        public byte roomId = 0x00;
-        public EntranceType type = EntranceType.Right;
+        public Vector3 position;
+        public Vector3 scale;
+        public byte roomId;
+        public EntranceType type;
         public Entrance couple = null;
     }
 

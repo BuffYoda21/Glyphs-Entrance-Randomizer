@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -51,7 +52,9 @@ namespace GlyphsEntranceRando {
                     int id = parseHex(idStr);
                     byte roomId = (byte)parseHex(serializedEntrance.room);
                     if (!Enum.TryParse(serializedEntrance.type, out EntranceType entranceType)) throw new Exception($"Invalid entrance type {serializedEntrance.type}");
-                    allEntrances[id] = new Entrance(id, roomId, entranceType);
+                    Vector3 position = new Vector3(serializedEntrance.position[0], serializedEntrance.position[1], serializedEntrance.position[2]);
+                    Vector3 scale = new Vector3(serializedEntrance.scale[0], serializedEntrance.scale[1], serializedEntrance.scale[2]);
+                    allEntrances[id] = new Entrance(id, roomId, entranceType, position, scale);
                 }
             }
             // Gets the contents of the entrances.jsonc file
@@ -129,6 +132,8 @@ public class SerializedEntrancePair {
 public class SerializedEntrance {
     public string room { get; set; }
     public string type { get; set; }
+    public float[] position { get; set; } = { 0, 0, 0 }; // [x, y, z]
+    public float[] scale { get; set; } = { 0, 0, 0 }; // [x, y, z]
 }
 public class SerializedRoom {
     public List<String> entrances { get; set; } // List of hexadecimal entrance ids

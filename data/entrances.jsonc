@@ -1,33 +1,178 @@
 {
-  "0x0000": { "room": "0x00", "type": "Bottom" },
-  "0x0001": { "room": "0x01", "type": "Right" },
-  "0x0002": { "room": "0x02", "type": "Left" },
-  "0x0003": { "room": "0x02", "type": "Right" },
-  "0x0004": { "room": "0x03", "type": "Left" },
-  "0x0005": { "room": "0x03", "type": "Right" },
-  "0x0006": { "room": "0x04", "type": "Left" },
-  "0x0007": { "room": "0x04", "type": "Right" },
-  "0x0008": { "room": "0x04", "type": "Bottom" },
-  "0x0009": { "room": "0x05", "type": "Left" },
-  "0x000a": { "room": "0x05", "type": "Right" },
-  "0x000b": { "room": "0x06", "type": "Left" },
-  "0x000c": { "room": "0x06", "type": "Right" },
-  "0x000d": { "room": "0x06", "type": "Top" },
-  "0x000e": { "room": "0x07", "type": "Left" },
-  "0x000f": { "room": "0x07", "type": "Right" },
-  "0x0010": { "room": "0x07", "type": "Bottom" },
-  "0x0011": { "room": "0x08", "type": "Left" },
-  "0x0012": { "room": "0x09", "type": "Right" },
-  "0x0013": { "room": "0x0a", "type": "Left" }, // to shard room
-  "0x0014": { "room": "0x0a", "type": "Left" }, // to smile token room
-  "0x0015": { "room": "0x0a", "type": "Right" }, // to map room
-  "0x0016": { "room": "0x0a", "type": "Right" }, // flower passage
-  "0x0017": { "room": "0x0a", "type": "Right" }, // towards construct
-  "0x0018": { "room": "0x0b", "type": "Left" },
-  "0x0019": { "room": "0x0b", "type": "Right" },
-  "0x001a": { "room": "0x0c", "type": "Left" },
-  "0x001b": { "room": "0x0c", "type": "Right" },
-  "0x001c": { "room": "0x0c", "type": "Bottom" },
+  "0x0000": {
+    "room": "0x00",
+    "type": "Bottom",
+    "position": [138, 8.1, 0],
+    "scale": [4.5, 0.25, 1]
+  },
+  "0x0001": {
+    "room": "0x01",
+    "type": "Right",
+    "position": [14.1, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x0002": {
+    "room": "0x02",
+    "type": "Left",
+    "position": [14.4, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x0003": {
+    "room": "0x02",
+    "type": "Right",
+    "position": [42.6, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x0004": {
+    "room": "0x03",
+    "type": "Left",
+    "position": [42.9, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x0005": {
+    "room": "0x03",
+    "type": "Right",
+    "position": [71.1, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x0006": {
+    "room": "0x04",
+    "type": "Left",
+    "position": [71.4, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x0007": {
+    "room": "0x04",
+    "type": "Right",
+    "position": [99.6, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x0008": {
+    "room": "0x04",
+    "type": "Bottom",
+    "position": [84.75, -7.9, 0],
+    "scale": [18.5, 0.25, 1]
+  },
+  "0x0009": {
+    "room": "0x05",
+    "type": "Left",
+    "position": [99.9, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x000a": {
+    "room": "0x05",
+    "type": "Right",
+    "position": [128.1, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x000b": {
+    "room": "0x06",
+    "type": "Left",
+    "position": [128.4, 1.6, 0],
+    "scale": [0.25, 8.75, 1]
+  },
+  "0x000c": {
+    "room": "0x06",
+    "type": "Right",
+    "position": [185.1, 4.9, 0],
+    "scale": [0.25, 2.2, 1]
+  },
+  "0x000d": {
+    "room": "0x06",
+    "type": "Top",
+    "position": [138, 7.8, 0],
+    "scale": [4.5, 0.25, 1]
+  },
+  "0x000e": {
+    "room": "0x07",
+    "type": "Left",
+    "position": [185.4, 4.9, 0],
+    "scale": [0.25, 2.2, 1]
+  },
+  "0x000f": {
+    "room": "0x07",
+    "type": "Right",
+    "position": [213.6, 1.5, 0],
+    "scale": [0.25, 9, 1]
+  },
+  "0x0010": {
+    "room": "0x07",
+    "type": "Bottom",
+    "position": [190.625, -7.9, 0],
+    "scale": [2.25, 0.25, 1]
+  },
+  "0x0011": {
+    "room": "0x08",
+    "type": "Left",
+    "position": [213.9, 1.5, 0],
+    "scale": [0.25, 9, 1]
+  },
+  "0x0012": {
+    "room": "0x09",
+    "type": "Right",
+    "position": [-14.4, -15.125, 0],
+    "scale": [0.25, 3.75, 1]
+  },
+  "0x0013": {
+    "room": "0x0a",
+    "type": "Left",
+    "position": [-14.1, -15.125, 0],
+    "scale": [0.25, 3.75, 1]
+  }, // to shard room
+  "0x0014": {
+    "room": "0x0a",
+    "type": "Left",
+    "position": [-14.1, -58.5, 0],
+    "scale": [0.25, 2, 1]
+  }, // to smile token room
+  "0x0015": {
+    "room": "0x0a",
+    "type": "Right",
+    "position": [14.1, -19.625, 0],
+    "scale": [0.25, 2.75, 1]
+  }, // to map room
+  "0x0016": {
+    "room": "0x0a",
+    "type": "Right",
+    "position": [14.1, -49.5, 0],
+    "scale": [0.25, 2.5, 1]
+  }, // flower passage
+  "0x0017": {
+    "room": "0x0a",
+    "type": "Right",
+    "position": [14.1, -59.125, 0],
+    "scale": [0.25, 4.2, 1]
+  }, // towards construct
+  "0x0018": {
+    "room": "0x0b",
+    "type": "Left",
+    "position": [14.4, -19.625, 0],
+    "scale": [0.25, 4.2, 1]
+  },
+  "0x0019": {
+    "room": "0x0b",
+    "type": "Right",
+    "position": [42.6, -12.375, 0],
+    "scale": [0.25, 2.25, 1]
+  },
+  "0x001a": {
+    "room": "0x0c",
+    "type": "Left",
+    "position": [42.9, -12.375, 0],
+    "scale": [0.25, 2.25, 1]
+  },
+  "0x001b": {
+    "room": "0x0c",
+    "type": "Right",
+    "position": [71.1, -16.875, 0],
+    "scale": [0.25, 11.25, 1]
+  },
+  "0x001c": {
+    "room": "0x0c",
+    "type": "Bottom",
+    "position": [59.5, -23.9, 0],
+    "scale": [4.5, 0.25, 1]
+  },
   "0x001d": { "room": "0x0d", "type": "Left" },
   "0x001e": { "room": "0x0d", "type": "Right" },
   "0x001f": { "room": "0x0d", "type": "Top" },
