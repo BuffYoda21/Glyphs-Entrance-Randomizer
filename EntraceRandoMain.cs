@@ -92,7 +92,6 @@ namespace GlyphsEntranceRando {
         public Vector3 scale;
         public byte roomId;
         public EntranceType type;
-        public Entrance couple = null;
     }
 
     public enum Objective : byte {

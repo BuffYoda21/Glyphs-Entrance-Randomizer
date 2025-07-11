@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using MelonLoader;
-using Newtonsoft.Json;
 
 namespace GlyphsEntranceRando {
     public class RoomShuffler {
@@ -16,14 +15,16 @@ namespace GlyphsEntranceRando {
             toExplore.Enqueue(allEntrances[STARTING_ROOM]);
             while (!goal && toExplore.TryDequeue(out Entrance currentEntrance)) {
                 MelonLogger.Msg($"{toExplore.Count + 1} entrances to explore");
-                if (currentEntrance.couple == null) {
-                    if (PairEntrance(currentEntrance) == null) {
+                Entrance couple;
+                if (!coupledEntrances.TryGetValue(currentEntrance, out couple)) {
+                    couple = PairEntrance(currentEntrance);
+                    if (couple == null) {
                         MelonLogger.Error($"Failed to pair entrance {currentEntrance.id}");
                         return false;
                     }
                 }
-                List<Connection> shuffledConnections = new List<Connection>(allRooms[currentEntrance.couple.roomId].connections)
-                  .Where(c => c.enter.id == currentEntrance.couple.id) // Only connections that enter through the current entrance
+                List<Connection> shuffledConnections = new List<Connection>(allRooms[couple.roomId].connections)
+                  .Where(c => c.enter.id == couple.id) // Only connections that enter through the current entrance
                   .ToList();
                 ShuffleList(shuffledConnections);
                 foreach (Connection c in shuffledConnections) {
@@ -36,13 +37,13 @@ namespace GlyphsEntranceRando {
                     toExplore.Enqueue(c.exit);
                 }
 
-                bool endVisited = allEntrances[ENDING_ROOM].couple != null;
+                bool endVisited = coupledEntrances.ContainsKey(allEntrances[ENDING_ROOM]);
                 goal = endVisited && HasReq(Requirement.ConstructDefeat);
             }
             bool success = goal;
             if (goal) {
                 success = PairRemainingEntrances();
-                int unpairedCount = allEntrances.Count(e => e.Value.couple == null);
+                int unpairedCount = allEntrances.Count(e => !coupledEntrances.ContainsKey(e.Value));
                 if (unpairedCount > 0)
                     MelonLogger.Error($"{unpairedCount} entrances are unpaired!");
                 else
@@ -52,20 +53,19 @@ namespace GlyphsEntranceRando {
                 MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
             }
             Resources.ResultsJSON.Contents = allEntrances
-              .Where(e => e.Value.couple != null)
-              .Select(e => new SerializedEntrancePair { entrance = e.Key, couple = e.Value.couple.id })
+              .Where(e => coupledEntrances.ContainsKey(e.Value))
+              .Select(e => new SerializedEntrancePair { entrance = e.Key, couple = coupledEntrances[e.Value].id })
               .ToList();
             return success;
         }
 
         private static void ResetState() {
             allEntrances.Clear();
-            allRooms.Clear();
             leftEntrances.Clear();
             rightEntrances.Clear();
             topEntrances.Clear();
             bottomEntrances.Clear();
-            uncheckedEntrances.Clear();
+            coupledEntrances.Clear();
             knownObjectives.Clear();
             inventory.Clear();
             counters = new InventoryCounters();
@@ -91,7 +91,7 @@ namespace GlyphsEntranceRando {
                 }
                 return false;
             } else { //this connection must be connecting to another entrance
-                if (c.exit.couple != null) return false;    //this entrance is already coupled meaning we visited it already so ignore
+                if (coupledEntrances.ContainsKey(c.exit)) return false;    //this entrance is already coupled meaning we visited it already so ignore
                 bool reqMet = c.requirements == null || c.requirements.Any(list => list.All(HasReq));
                 return reqMet;
             }
@@ -151,7 +151,7 @@ namespace GlyphsEntranceRando {
         }
 
         private static Entrance PairEntrance(Entrance e) {
-            if (e.couple != null) return e.couple;
+            if (coupledEntrances.TryGetValue(e, out Entrance couple)) return couple;
             List<Entrance> directionToPair = null, directionToRemove = null;
             switch (e.type) {
                 case EntranceType.Left:
@@ -179,8 +179,8 @@ namespace GlyphsEntranceRando {
             Entrance pairing = directionToPair[rand];
             directionToPair.RemoveAt(rand);
 
-            e.couple = pairing;
-            pairing.couple = e;
+            coupledEntrances[e] = pairing;
+            coupledEntrances[pairing] = e;
 
             directionToRemove.Remove(e);
             VerifyEntrancePairings();
@@ -211,10 +211,10 @@ namespace GlyphsEntranceRando {
         }
 
         private static void VerifyEntrancePairings() {
-            rightEntrances.RemoveAll(e => e.couple != null);
-            leftEntrances.RemoveAll(e => e.couple != null);
-            topEntrances.RemoveAll(e => e.couple != null);
-            bottomEntrances.RemoveAll(e => e.couple != null);
+            rightEntrances.RemoveAll(coupledEntrances.ContainsKey);
+            leftEntrances.RemoveAll(coupledEntrances.ContainsKey);
+            topEntrances.RemoveAll(coupledEntrances.ContainsKey);
+            bottomEntrances.RemoveAll(coupledEntrances.ContainsKey);
         }
 
         /*
@@ -253,13 +253,15 @@ namespace GlyphsEntranceRando {
         public static List<Room> allRooms = new List<Room>();
         public const int STARTING_ROOM = 0x0001; // Magic number, make sure this is the first room in the game
         public const int ENDING_ROOM = 0x0011; // Magic number, make sure this is the last room in the game
+
         public static Dictionary<int, Entrance> allEntrances = new Dictionary<int, Entrance>();
+        // Used to keep track of which entrances have been paired (instead of modifying the object)
+        public static Dictionary<Entrance, Entrance> coupledEntrances = new Dictionary<Entrance, Entrance>();
         public static List<Entrance> rightEntrances = new List<Entrance>();
         public static List<Entrance> leftEntrances = new List<Entrance>();
         public static List<Entrance> topEntrances = new List<Entrance>();
         public static List<Entrance> bottomEntrances = new List<Entrance>();
 
-        public static List<List<Entrance>> uncheckedEntrances = new List<List<Entrance>>();
         public static List<UncollectedObjective> knownObjectives = new List<UncollectedObjective>();
         public static List<CollectedObjective> inventory = new List<CollectedObjective>();
         public static InventoryCounters counters = new InventoryCounters();
