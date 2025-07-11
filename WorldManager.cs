@@ -20,8 +20,7 @@ namespace GlyphsEntranceRando {
             if (!player)
                 player = GameObject.Find("Player")?.transform;
 
-            //temporary solution most likely
-            if (player && Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Backspace)
+            if (player && Input.GetKeyDown(KeyCode.Backspace))
                 player.position = new Vector3(0f, 0f, 0f);
 
             if (!runicConstruct) {
