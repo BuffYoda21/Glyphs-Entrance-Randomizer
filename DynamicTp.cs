@@ -12,10 +12,10 @@ namespace GlyphsEntranceRando {
                 other.GetComponent<Rigidbody2D>().linearVelocityY <= 0 && type == EntranceType.Top) return;
             if (!targetExit.GetComponent<DynamicTp>().blocked) {
                 switch (type) {
-                    case EntranceType.Left: other.transform.position = new Vector3(targetExit.position.x - .5f, targetExit.position.y + ((other.transform.position.y - transform.position.y) / transform.localScale.y * targetExit.localScale.y), targetExit.position.z); break;
-                    case EntranceType.Right: other.transform.position = new Vector3(targetExit.position.x + .5f, targetExit.position.y + ((other.transform.position.y - transform.position.y) / transform.localScale.y * targetExit.localScale.y), targetExit.position.z); break;
-                    case EntranceType.Top: other.transform.position = new Vector3(targetExit.position.x + ((other.transform.position.x - transform.position.x) / transform.localScale.x * targetExit.localScale.x), targetExit.position.y + .5f, targetExit.position.z); break;
-                    case EntranceType.Bottom: other.transform.position = new Vector3(targetExit.position.x + ((other.transform.position.x - transform.position.x) / transform.localScale.x * targetExit.localScale.x), targetExit.position.y - .5f, targetExit.position.z); break;
+                    case EntranceType.Left: other.transform.position = new Vector3(targetExit.position.x - 1f, targetExit.position.y + ((other.transform.position.y - transform.position.y) / transform.localScale.y * targetExit.localScale.y), targetExit.position.z); break;
+                    case EntranceType.Right: other.transform.position = new Vector3(targetExit.position.x + 1f, targetExit.position.y + ((other.transform.position.y - transform.position.y) / transform.localScale.y * targetExit.localScale.y), targetExit.position.z); break;
+                    case EntranceType.Top: other.transform.position = new Vector3(targetExit.position.x + ((other.transform.position.x - transform.position.x) / transform.localScale.x * targetExit.localScale.x), targetExit.position.y + 1f, targetExit.position.z); break;
+                    case EntranceType.Bottom: other.transform.position = new Vector3(targetExit.position.x + ((other.transform.position.x - transform.position.x) / transform.localScale.x * targetExit.localScale.x), targetExit.position.y - 1f, targetExit.position.z); break;
                 }
             } else {
                 switch (type) {
