@@ -57,8 +57,8 @@ namespace GlyphsEntranceRando {
         BossBarManager bbm;
 
         //these entrances may be blocked under certain conditions
-        public const int CONSTRUCT_DOOR_EXIT = 0x0033;
-        public const int CONSTRUCT_DOOR_ENTER = 0x0032;
+        public const int CONSTRUCT_DOOR_EXIT = 0x0032;
+        public const int CONSTRUCT_DOOR_ENTER = 0x0031;
         public const int R1_FLOWER_EXIT = 0x0016;
         public const int R1_FLOWER_ENTER = 0x0028;
     }
