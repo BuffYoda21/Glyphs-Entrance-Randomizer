@@ -19,8 +19,10 @@ namespace GlyphsEntranceRando {
             }
             if (!player)
                 player = GameObject.Find("Player")?.transform;
+            if (!bbm)
+                bbm = FindFirstObjectByType<BossBarManager>();
 
-            if (player && Input.GetKeyDown(KeyCode.Backspace))
+            if (player && !bbm.boss && Input.GetKeyDown(KeyCode.Backspace))
                 player.position = new Vector3(0f, 0f, 0f);
 
             if (!runicConstruct) {
@@ -52,6 +54,7 @@ namespace GlyphsEntranceRando {
         DynamicTp constructDoorEnter;
         DynamicTp r1FlowerExit;
         DynamicTp r1FlowerEnter;
+        BossBarManager bbm;
 
         //these entrances may be blocked under certain conditions
         public const int CONSTRUCT_DOOR_EXIT = 0x0033;
