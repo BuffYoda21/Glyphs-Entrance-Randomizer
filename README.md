@@ -1,6 +1,7 @@
 # Glyphs Entrance Randomizer
 
-This is a proof of concept entrance randomizer for Glyphs. As of now, only region 1 (the grey region) is supported for randomization. This mod will take all the entrances in region 1 of Glyphs and shuffle them for a diverse playthrough. **This is very likely to have bugs in it.** (bonus hint: press backspace to warp back to the starting room instantly!)
+This is a proof of concept entrance randomizer for Glyphs. As of now, only region 1 (the grey region) is supported for randomization. This mod will take all the entrances in region 1 of Glyphs and shuffle them for a diverse playthrough. **This is very likely to have bugs in it.**
+(bonus hint: press backspace to warp back to the starting room instantly!)
 
 #### DISCLAIMER:
 The Shuffling logic may not be perfect and impossible worlds may be generated.
