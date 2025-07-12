@@ -29,7 +29,7 @@
       ["0x0002", "0x0002", null],
       ["0x0003", "0x0003", null],
       ["0x0002", "0x0003", null],
-      ["0x0003", "0x0002", null]
+      ["0x0003", "0x0002", [["DashOrb"]]]
     ]
   },
   "0x03": {
@@ -219,7 +219,7 @@
         "0x001F",
         [
           ["DashOrb", "WallJumpx1"],
-          ["DashOrb", "FlowerPuzzle"]
+          ["VerticalMomentum"]
         ]
       ],
       [
@@ -227,7 +227,7 @@
         "0x001E",
         [
           ["DashOrb", "WallJumpx1"],
-          ["DashOrb", "FlowerPuzzle"]
+          ["VerticalMomentum"]
         ]
       ],
       ["0x001E", "0x001D", null],
@@ -236,11 +236,11 @@
         "0x001F",
         [
           ["DashOrb", "WallJumpx1"],
-          ["DashOrb", "FlowerPuzzle"]
+          ["VerticalMomentum"]
         ]
       ],
       ["0x001F", "0x001D", null],
-      ["0x001E", "0x001F", [["DashOrb"]]],
+      ["0x001E", "0x001F", [["DashOrb", "VerticalMomentum"]]],
       ["0x001F", "0x001E", [["DashOrb"]]],
       ["0x001D", "VerticalMomentum", [["DashOrb", "FlowerPuzzle"]]],
       ["0x001E", "VerticalMomentum", [["DashOrb", "FlowerPuzzle"]]],
@@ -287,7 +287,7 @@
     ],
     "connections": [
       ["0x0026", "0x0026", null],
-      ["0x0026", "RuneCube", [["DashOrb"]]]
+      ["0x0026", "RuneCube", [["VerticalMomentum"]]]
     ]
   },
   "0x13": {
