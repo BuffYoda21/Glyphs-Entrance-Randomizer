@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Il2CppInterop.Runtime.Injection;
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.5.0", "BuffYoda21")]
+[assembly: MelonInfo(typeof(GlyphsEntranceRando.Main), "Glyphs Entrance Randomizer", "0.6.1", "BuffYoda21")]
 [assembly: MelonGame("Vortex Bros.", "GLYPHS")]
 
 namespace GlyphsEntranceRando {
