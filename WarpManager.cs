@@ -14,6 +14,7 @@ namespace GlyphsEntranceRando {
             lastSceneHandle = scene.handle;
             if (scene.name != "Game" || entrancePairs == null) return;
             warpParent = new GameObject("Warps");
+            warps.Clear();
 
             foreach (SerializedEntrancePair pair in entrancePairs) {
                 GameObject warp = new GameObject($"0x{pair.entrance:X4}");
