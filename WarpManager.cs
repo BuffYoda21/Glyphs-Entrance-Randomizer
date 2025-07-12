@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace GlyphsEntranceRando {
     [HarmonyPatch]
     public static class WarpManager {
-        #pragma warning disable IDE0060 // Remove unused parameter warning
+#pragma warning disable IDE0060 // Remove unused parameter warning
         [HarmonyPatch(typeof(SceneManager), "Internal_SceneLoaded")]
         [HarmonyPostfix]
         public static void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
@@ -24,8 +24,12 @@ namespace GlyphsEntranceRando {
             foreach (GameObject warp in warps) {
                 warp.GetComponent<DynamicTp>()?.RegisterTargetFromId(warps);
             }
+
+            // Remove cutscene triggers
+            GameObject.Find("World/Region1/(R4A)/SaveConditional")?.SetActive(false);
+            GameObject.Find("World/Region1/(R3D)(sword)/SaveConditional/")?.SetActive(false);
         }
-        #pragma warning restore IDE0060 // Restore unused parameter warning
+#pragma warning restore IDE0060 // Restore unused parameter warning
 
         private static void PlaceWarp(GameObject warp, SerializedEntrancePair pair) {
             int entranceId = pair.entrance, targetId = pair.couple;
