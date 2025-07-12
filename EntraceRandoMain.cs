@@ -35,6 +35,7 @@ namespace GlyphsEntranceRando {
             }
 
             for (int i = 0; i > -1; i++) {
+                if (i % 500 == 0) MelonLogger.Msg("Please wait, shuffling entrances...");
                 if (RoomShuffler.Shuffle()) {
                     MelonLogger.Msg($"{i} randomization attempts tried");
                     MelonLogger.Msg("Randomization Successful!");

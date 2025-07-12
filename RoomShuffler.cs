@@ -16,7 +16,7 @@ namespace GlyphsEntranceRando {
             bool goal = false;
             toExplore.Enqueue(Resources.Entrances.StartingEntrance);
             while (!goal && toExplore.TryDequeue(out Entrance currentEntrance)) {
-                MelonLogger.Msg($"{toExplore.Count + 1} entrances to explore");
+                //MelonLogger.Msg($"{toExplore.Count + 1} entrances to explore");
                 Entrance couple;
                 if (!coupledEntrances.TryGetValue(currentEntrance, out couple)) {
                     couple = PairEntrance(currentEntrance);
@@ -51,14 +51,14 @@ namespace GlyphsEntranceRando {
                     MelonLogger.Error($"{unpairedCount} entrances are unpaired!");
                 else
                     MelonLogger.Msg("All entrances are paired.");
-            } else {
-                MelonLogger.Error("Randomization Failed. Outputting partial results.");
-                MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
-            }
-            Resources.ResultsJSON.Contents = allEntrances.Values
-              .Where(e => coupledEntrances.ContainsKey(e))
-              .Select(e => new SerializedEntrancePair { entrance = e.id, couple = coupledEntrances[e].id })
-              .ToList();
+                Resources.ResultsJSON.Contents = allEntrances.Values
+                    .Where(e => coupledEntrances.ContainsKey(e))
+                    .Select(e => new SerializedEntrancePair { entrance = e.id, couple = coupledEntrances[e].id })
+                    .ToList();
+            } //else {
+              //MelonLogger.Error("Randomization Failed. Outputting partial results.");
+              //MelonLogger.Msg($"Sword: {HasReq(Requirement.Sword)}, Construct: {HasReq(Requirement.ConstructDefeat)}");
+              //}
             return success;
         }
 
